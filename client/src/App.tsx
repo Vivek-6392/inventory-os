@@ -6,6 +6,8 @@ import theme from './theme';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import { ItemsPage } from './pages/ItemsPage';
+import { ItemDetailPage } from './pages/ItemDetailPage';
 
 // Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -63,7 +65,8 @@ const App: React.FC = () => {
               }
             >
               <Route path="/" element={<DashboardPage />} />
-              {/* More routes will be added in subsequent sessions */}
+              <Route path="/items" element={<ItemsPage />} />
+              <Route path="/items/:id" element={<ItemDetailPage />} />
             </Route>
 
             {/* Catch-all redirect */}

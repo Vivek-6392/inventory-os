@@ -12,8 +12,8 @@ from sqlalchemy import (
     Enum as SAEnum,
     CheckConstraint,
     Table,
+    UUID,
 )
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -162,7 +162,10 @@ class Item(Base):
 class StockMovement(Base):
     __tablename__ = "stock_movements"
     __table_args__ = (
-        CheckConstraint("quantity > 0", name="ck_movement_quantity_positive"),
+        CheckConstraint(
+            "(kind = 'ADJUSTMENT' AND quantity != 0) OR (kind != 'ADJUSTMENT' AND quantity > 0)",
+            name="ck_movement_quantity_valid",
+        ),
         CheckConstraint(
             "kind != 'ADJUSTMENT' OR reason IS NOT NULL",
             name="ck_adjustment_has_reason",

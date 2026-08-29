@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -12,18 +12,25 @@ from app.database import get_db
 from app.models.models import User, UserRole
 
 # ---------------------------------------------------------------------------
-# Password hashing
+# Password hashing (native bcrypt)
 # ---------------------------------------------------------------------------
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    """Hash password using native bcrypt (handles max 72 bytes safely)."""
+    pw_bytes = password.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pw_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    """Verify plain password against bcrypt hashed password."""
+    try:
+        pw_bytes = plain.encode("utf-8")[:72]
+        hashed_bytes = hashed.encode("utf-8")
+        return bcrypt.checkpw(pw_bytes, hashed_bytes)
+    except Exception:
+        return False
 
 
 # ---------------------------------------------------------------------------
