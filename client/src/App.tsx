@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import { ItemsPage } from './pages/ItemsPage';
 import { ItemDetailPage } from './pages/ItemDetailPage';
+import { MovementsPage } from './pages/MovementsPage';
 
 // Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -67,6 +68,7 @@ const App: React.FC = () => {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/items" element={<ItemsPage />} />
               <Route path="/items/:id" element={<ItemDetailPage />} />
+              <Route path="/movements" element={<MovementsPage />} />
             </Route>
 
             {/* Catch-all redirect */}

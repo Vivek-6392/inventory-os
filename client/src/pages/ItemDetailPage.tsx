@@ -14,7 +14,6 @@ import {
   Alert,
   CircularProgress,
   IconButton,
-  Tooltip,
   Paper,
   alpha,
   useTheme,
@@ -29,12 +28,16 @@ import {
   LocationOn as LocationIcon,
   History as HistoryIcon,
   SwapHoriz as MovementsIcon,
+  Add as AddIcon,
 } from '@mui/icons-material';
-import { Item, Location } from '../types';
+import { Item, Location, StockMovement } from '../types';
 import { getItem, toggleArchiveItem } from '../services/items';
 import { getLocations } from '../services/locations';
+import { getItemMovements } from '../services/movements';
 import { useAuth } from '../contexts/AuthContext';
 import { ItemDialog } from '../components/ItemDialog';
+import { MovementsTable } from '../components/MovementsTable';
+import { RecordMovementDialog } from '../components/RecordMovementDialog';
 
 export const ItemDetailPage: React.FC = () => {
   const theme = useTheme();
@@ -44,11 +47,14 @@ export const ItemDetailPage: React.FC = () => {
 
   const [item, setItem] = useState<Item | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [movements, setMovements] = useState<StockMovement[]>([]);
+  const [movementsLoading, setMovementsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState(0);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [recordMovementDialogOpen, setRecordMovementDialogOpen] = useState(false);
 
   const loadItemDetails = useCallback(async () => {
     if (!id) return;
@@ -68,9 +74,23 @@ export const ItemDetailPage: React.FC = () => {
     }
   }, [id]);
 
+  const loadMovements = useCallback(async () => {
+    if (!id) return;
+    setMovementsLoading(true);
+    try {
+      const mvData = await getItemMovements(id);
+      setMovements(mvData);
+    } catch {
+      // Ignore
+    } finally {
+      setMovementsLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     loadItemDetails();
-  }, [loadItemDetails]);
+    loadMovements();
+  }, [loadItemDetails, loadMovements]);
 
   const handleToggleArchive = async () => {
     if (!item) return;
@@ -80,6 +100,11 @@ export const ItemDetailPage: React.FC = () => {
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to update archive status');
     }
+  };
+
+  const handleMovementRecorded = () => {
+    loadItemDetails();
+    loadMovements();
   };
 
   if (loading) {
@@ -144,25 +169,37 @@ export const ItemDetailPage: React.FC = () => {
           </Box>
         </Stack>
 
-        {isManager && (
-          <Stack direction="row" spacing={1.5}>
+        <Stack direction="row" spacing={1.5}>
+          {!item.archived && (
             <Button
-              variant="outlined"
-              startIcon={<EditIcon />}
-              onClick={() => setEditDialogOpen(true)}
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setRecordMovementDialogOpen(true)}
             >
-              Edit Item
+              Record Movement
             </Button>
-            <Button
-              variant="outlined"
-              color={item.archived ? 'success' : 'warning'}
-              startIcon={item.archived ? <RestoreIcon /> : <ArchiveIcon />}
-              onClick={handleToggleArchive}
-            >
-              {item.archived ? 'Restore' : 'Archive'}
-            </Button>
-          </Stack>
-        )}
+          )}
+
+          {isManager && (
+            <>
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                onClick={() => setEditDialogOpen(true)}
+              >
+                Edit Item
+              </Button>
+              <Button
+                variant="outlined"
+                color={item.archived ? 'success' : 'warning'}
+                startIcon={item.archived ? <RestoreIcon /> : <ArchiveIcon />}
+                onClick={handleToggleArchive}
+              >
+                {item.archived ? 'Restore' : 'Archive'}
+              </Button>
+            </>
+          )}
+        </Stack>
       </Stack>
 
       {/* KPI Cards */}
@@ -303,18 +340,20 @@ export const ItemDetailPage: React.FC = () => {
       <Card sx={{ borderRadius: 3 }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 1 }}>
           <Tabs value={activeTab} onChange={(_, val) => setActiveTab(val)}>
-            <Tab icon={<MovementsIcon fontSize="small" />} iconPosition="start" label="Stock Movements" />
+            <Tab icon={<MovementsIcon fontSize="small" />} iconPosition="start" label={`Stock Movements (${movements.length})`} />
             <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="Audit Trail / History" />
           </Tabs>
         </Box>
 
         <Box sx={{ p: 3 }}>
           {activeTab === 0 && (
-            <Box sx={{ py: 2, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                Movements ledger component will load here in Session 3.
-              </Typography>
-            </Box>
+            movementsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress size={32} />
+              </Box>
+            ) : (
+              <MovementsTable movements={movements} hideItemColumn />
+            )
           )}
 
           {activeTab === 1 && (
@@ -333,6 +372,14 @@ export const ItemDetailPage: React.FC = () => {
         item={item}
         onClose={() => setEditDialogOpen(false)}
         onSaved={loadItemDetails}
+      />
+
+      {/* Record movement dialog */}
+      <RecordMovementDialog
+        open={recordMovementDialogOpen}
+        preselectedItem={item}
+        onClose={() => setRecordMovementDialogOpen(false)}
+        onMovementRecorded={handleMovementRecorded}
       />
     </Box>
   );
