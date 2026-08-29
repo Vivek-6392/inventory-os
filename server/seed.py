@@ -66,8 +66,7 @@ def seed():
         )
         db.add_all([manager, staff1, staff2])
         db.flush()
-        print(f"  ✓ Created {3} users")
-
+        print(f"  [+] Created 3 users")
         # ---------------------------------------------------------------
         # Locations
         # ---------------------------------------------------------------
@@ -76,14 +75,14 @@ def seed():
         loc_retail2 = Location(name="Retail Floor B", description="Mall retail location")
         db.add_all([loc_warehouse, loc_retail1, loc_retail2])
         db.flush()
-        print(f"  ✓ Created {3} locations")
+        print(f"  [+] Created 3 locations")
 
         # Assign staff to locations
         staff1.assigned_locations.append(loc_warehouse)
         staff1.assigned_locations.append(loc_retail1)
         staff2.assigned_locations.append(loc_retail2)
         db.flush()
-        print("  ✓ Assigned staff to locations")
+        print("  [+] Assigned staff to locations")
 
         # ---------------------------------------------------------------
         # Categories
@@ -95,7 +94,7 @@ def seed():
         cat_plumbing = Category(name="Plumbing")
         db.add_all([cat_electronics, cat_hardware, cat_safety, cat_office, cat_plumbing])
         db.flush()
-        print(f"  ✓ Created {5} categories")
+        print(f"  [+] Created 5 categories")
 
         # ---------------------------------------------------------------
         # Items
@@ -110,7 +109,7 @@ def seed():
             ("SKU-007", "Hex Bolt M10", "M10x30mm stainless steel hex bolt", "pcs", 100, cat_hardware),
             ("SKU-008", "Hard Hat", "OSHA-compliant white hard hat", "pcs", 15, cat_safety),
             ("SKU-009", "Stapler Heavy Duty", "Heavy duty stapler, 100-sheet capacity", "pcs", 8, cat_office),
-            ("SKU-010", "Copper Elbow 1in", "1-inch copper 90° elbow fitting", "pcs", 40, cat_plumbing),
+            ("SKU-010", "Copper Elbow 1in", "1-inch copper 90 deg elbow fitting", "pcs", 40, cat_plumbing),
             ("SKU-011", "HDMI Cable", "HDMI 2.1 cable, 10ft", "pcs", 20, cat_electronics),
             ("SKU-012", "Screwdriver Set", "Phillips & flathead set, 12 pieces", "sets", 5, cat_hardware),
         ]
@@ -128,7 +127,7 @@ def seed():
             items.append(item)
         db.add_all(items)
         db.flush()
-        print(f"  ✓ Created {len(items)} items")
+        print(f"  [+] Created {len(items)} items")
 
         # Create item history for creation
         for item in items:
@@ -183,7 +182,7 @@ def seed():
             )
             db.add(mvmt)
         db.flush()
-        print(f"  ✓ Created {len(movements)} stock movements")
+        print(f"  [+] Created {len(movements)} stock movements")
 
         # ---------------------------------------------------------------
         # Alert state — initialize for all items
@@ -192,10 +191,10 @@ def seed():
             alert = AlertState(item_id=item.id, is_dismissed=False)
             db.add(alert)
         db.flush()
-        print("  ✓ Initialized alert state for all items")
+        print("  [+] Initialized alert state for all items")
 
         db.commit()
-        print("\n✅ Database seeded successfully!")
+        print("\nDatabase seeded successfully!")
         print("\nDemo credentials:")
         print("  Manager: manager@invstock.com / manager123")
         print("  Staff 1: staff1@invstock.com  / staff123")
@@ -203,7 +202,7 @@ def seed():
 
     except Exception as e:
         db.rollback()
-        print(f"\n❌ Seeding failed: {e}")
+        print(f"\nSeeding failed: {e}")
         raise
     finally:
         db.close()

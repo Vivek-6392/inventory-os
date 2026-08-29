@@ -21,7 +21,7 @@ import {
   SwapHoriz as TransferIcon,
   InfoOutlined as InfoIcon,
 } from '@mui/icons-material';
-import { StockMovement, MovementKind } from '../types';
+import { MovementKind, type StockMovement } from '../types';
 
 interface MovementsTableProps {
   movements: StockMovement[];

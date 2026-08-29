@@ -1,5 +1,5 @@
 import api from './api';
-import { Item, PaginatedResponse } from '../types';
+import type { Item, PaginatedResponse } from '../types';
 
 export interface GetItemsParams {
   search?: string;

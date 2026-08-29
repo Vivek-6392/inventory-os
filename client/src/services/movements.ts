@@ -1,5 +1,5 @@
 import api from './api';
-import { StockMovement, MovementKind, PaginatedResponse } from '../types';
+import { MovementKind, type StockMovement, type PaginatedResponse } from '../types';
 
 export interface MovementCreatePayload {
   item_id: string;

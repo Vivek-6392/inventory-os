@@ -14,8 +14,9 @@ import {
   useTheme,
 } from '@mui/material';
 import { Inventory as ItemIcon } from '@mui/icons-material';
-import { Item, Category } from '../types';
-import { createItem, updateItem, ItemFormData } from '../services/items';
+import type { Item, Category } from '../types';
+import { createItem, updateItem } from '../services/items';
+import type { ItemFormData } from '../services/items';
 import { getCategories } from '../services/categories';
 
 interface ItemDialogProps {

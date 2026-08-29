@@ -26,7 +26,7 @@ import {
   Close as CloseIcon,
   Category as CategoryIcon,
 } from '@mui/icons-material';
-import { Category } from '../types';
+import type { Category } from '../types';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/categories';
 
 interface CategoryDialogProps {

@@ -24,7 +24,7 @@ import {
   Tune as AdjustIcon,
   CompareArrows as TransferIcon,
 } from '@mui/icons-material';
-import { Item, Location, MovementKind } from '../types';
+import { MovementKind, type Item, type Location } from '../types';
 import { recordMovement } from '../services/movements';
 import { getItems, getItem } from '../services/items';
 import { getLocations } from '../services/locations';

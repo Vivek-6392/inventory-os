@@ -9,6 +9,8 @@ import DashboardPage from './pages/DashboardPage';
 import { ItemsPage } from './pages/ItemsPage';
 import { ItemDetailPage } from './pages/ItemDetailPage';
 import { MovementsPage } from './pages/MovementsPage';
+import { LocationsPage } from './pages/LocationsPage';
+import { UsersPage } from './pages/UsersPage';
 
 // Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -20,6 +22,21 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Manager-only route wrapper
+const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading, isManager } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!user || !isManager) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -69,6 +86,15 @@ const App: React.FC = () => {
               <Route path="/items" element={<ItemsPage />} />
               <Route path="/items/:id" element={<ItemDetailPage />} />
               <Route path="/movements" element={<MovementsPage />} />
+              <Route path="/locations" element={<LocationsPage />} />
+              <Route
+                path="/users"
+                element={
+                  <ManagerRoute>
+                    <UsersPage />
+                  </ManagerRoute>
+                }
+              />
             </Route>
 
             {/* Catch-all redirect */}

@@ -30,7 +30,7 @@ import {
   SwapHoriz as MovementsIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
-import { Item, Location, StockMovement } from '../types';
+import type { Item, Location, StockMovement } from '../types';
 import { getItem, toggleArchiveItem } from '../services/items';
 import { getLocations } from '../services/locations';
 import { getItemMovements } from '../services/movements';

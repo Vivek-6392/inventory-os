@@ -16,7 +16,7 @@ import {
   Add as AddIcon,
   SwapHoriz as MovementsIcon,
 } from '@mui/icons-material';
-import { StockMovement, Item, Location, MovementKind } from '../types';
+import { MovementKind, type StockMovement, type Item, type Location } from '../types';
 import { getMovements } from '../services/movements';
 import { getItems } from '../services/items';
 import { getLocations } from '../services/locations';

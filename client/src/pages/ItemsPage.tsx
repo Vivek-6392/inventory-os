@@ -40,7 +40,7 @@ import {
   SwapHoriz as MovementIcon,
   FileDownload as ExportIcon,
 } from '@mui/icons-material';
-import { Item, Category, Location } from '../types';
+import type { Item, Category, Location } from '../types';
 import { getItems, toggleArchiveItem } from '../services/items';
 import { getCategories } from '../services/categories';
 import { getLocations } from '../services/locations';
