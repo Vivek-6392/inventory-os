@@ -38,6 +38,22 @@ import { useAuth } from '../contexts/AuthContext';
 import { ItemDialog } from '../components/ItemDialog';
 import { MovementsTable } from '../components/MovementsTable';
 import { RecordMovementDialog } from '../components/RecordMovementDialog';
+import { ItemHistoryTimeline } from '../components/ItemHistoryTimeline';
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+  return (
+    <div role="tabpanel" hidden={value !== index} {...other}>
+      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
 export const ItemDetailPage: React.FC = () => {
   const theme = useTheme();
@@ -357,11 +373,7 @@ export const ItemDetailPage: React.FC = () => {
           )}
 
           {activeTab === 1 && (
-            <Box sx={{ py: 2, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                Item history timeline component will load here in Session 5.
-              </Typography>
-            </Box>
+            <ItemHistoryTimeline itemId={item.id} />
           )}
         </Box>
       </Card>

@@ -1,8 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, CssBaseline } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import theme from './theme';
+import { AppThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -59,8 +58,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <AppThemeProvider>
       <BrowserRouter>
         <AuthProvider>
           <Routes>
@@ -102,7 +100,7 @@ const App: React.FC = () => {
           </Routes>
         </AuthProvider>
       </BrowserRouter>
-    </ThemeProvider>
+    </AppThemeProvider>
   );
 };
 

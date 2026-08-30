@@ -32,8 +32,11 @@ import {
   Logout as LogoutIcon,
   Menu as MenuIcon,
   Person as PersonIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { useColorMode } from '../contexts/ThemeContext';
 import api from '../services/api';
 
 const DRAWER_WIDTH = 260;
@@ -59,6 +62,7 @@ const Layout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, isManager } = useAuth();
+  const { mode, toggleColorMode } = useColorMode();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [alertCount, setAlertCount] = useState(0);
@@ -305,21 +309,48 @@ const Layout: React.FC = () => {
           position="sticky"
           elevation={0}
           sx={{
-            bgcolor: alpha(theme.palette.background.default, 0.8),
+            bgcolor: alpha(theme.palette.background.default, 0.85),
+            color: 'text.primary',
             backdropFilter: 'blur(20px)',
             borderBottom: `1px solid ${theme.palette.divider}`,
           }}
         >
           <Toolbar>
             <IconButton
-              color="inherit"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { md: 'none' } }}
+              sx={{ mr: 2, display: { md: 'none' }, color: 'text.primary' }}
             >
               <MenuIcon />
             </IconButton>
             <Box sx={{ flex: 1 }} />
+
+            {/* Light / Dark Mode Toggle */}
+            <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+              <IconButton
+                onClick={toggleColorMode}
+                sx={{
+                  mr: 1.5,
+                  width: 38,
+                  height: 38,
+                  borderRadius: 2.5,
+                  backgroundColor: alpha(theme.palette.primary.main, mode === 'dark' ? 0.12 : 0.08),
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, mode === 'dark' ? 0.2 : 0.15),
+                    transform: 'scale(1.05)',
+                  },
+                }}
+              >
+                {mode === 'dark' ? (
+                  <LightModeIcon sx={{ color: '#FFB74D', fontSize: 20 }} />
+                ) : (
+                  <DarkModeIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
+                )}
+              </IconButton>
+            </Tooltip>
+
             <Tooltip title="Account">
               <IconButton onClick={handleMenuOpen} sx={{ ml: 1 }}>
                 <Avatar

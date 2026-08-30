@@ -19,13 +19,17 @@ import {
   VisibilityOff,
   Email as EmailIcon,
   Lock as LockIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { useColorMode } from '../contexts/ThemeContext';
 
 const LoginPage: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { mode, toggleColorMode } = useColorMode();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -52,6 +56,7 @@ const LoginPage: React.FC = () => {
     <Box
       sx={{
         minHeight: '100vh',
+        position: 'relative',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -59,6 +64,31 @@ const LoginPage: React.FC = () => {
         p: 2,
       }}
     >
+      {/* Floating Theme Toggle */}
+      <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
+        <IconButton
+          onClick={toggleColorMode}
+          sx={{
+            width: 42,
+            height: 42,
+            borderRadius: 3,
+            backgroundColor: alpha(theme.palette.background.paper, 0.9),
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              backgroundColor: theme.palette.background.paper,
+              transform: 'scale(1.08)',
+            },
+          }}
+        >
+          {mode === 'dark' ? (
+            <LightModeIcon sx={{ color: '#FFB74D', fontSize: 22 }} />
+          ) : (
+            <DarkModeIcon sx={{ color: theme.palette.primary.main, fontSize: 22 }} />
+          )}
+        </IconButton>
+      </Box>
       <Card
         sx={{
           width: '100%',
