@@ -39,14 +39,16 @@ import {
   WarningAmber as WarningIcon,
   SwapHoriz as MovementIcon,
   FileDownload as ExportIcon,
+  FileUpload as ImportIcon,
 } from '@mui/icons-material';
 import type { Item, Category, Location } from '../types';
-import { getItems, toggleArchiveItem } from '../services/items';
+import { getItems, toggleArchiveItem, exportItemsCsv } from '../services/items';
 import { getCategories } from '../services/categories';
 import { getLocations } from '../services/locations';
 import { useAuth } from '../contexts/AuthContext';
 import { ItemDialog } from '../components/ItemDialog';
 import { CategoryDialog } from '../components/CategoryDialog';
+import { CsvImportDialog } from '../components/CsvImportDialog';
 
 export const ItemsPage: React.FC = () => {
   const theme = useTheme();
@@ -75,7 +77,9 @@ export const ItemsPage: React.FC = () => {
   // Modals state
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [csvImportDialogOpen, setCsvImportDialogOpen] = useState(false);
   const [selectedItemForEdit, setSelectedItemForEdit] = useState<Item | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   // Row action menu
   const [actionMenuAnchor, setActionMenuAnchor] = useState<null | HTMLElement>(null);
@@ -192,6 +196,17 @@ export const ItemsPage: React.FC = () => {
     }
   };
 
+  const handleExportCsv = async () => {
+    setExporting(true);
+    try {
+      await exportItemsCsv();
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to export inventory CSV');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <Box>
       {/* Page Header */}
@@ -215,8 +230,23 @@ export const ItemsPage: React.FC = () => {
         </Box>
 
         <Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
+          <Button
+            variant="outlined"
+            startIcon={exporting ? <CircularProgress size={16} /> : <ExportIcon />}
+            onClick={handleExportCsv}
+            disabled={exporting}
+          >
+            Export CSV
+          </Button>
           {isManager && (
             <>
+              <Button
+                variant="outlined"
+                startIcon={<ImportIcon />}
+                onClick={() => setCsvImportDialogOpen(true)}
+              >
+                Import CSV
+              </Button>
               <Button
                 variant="outlined"
                 startIcon={<CategoryIcon />}
@@ -577,6 +607,13 @@ export const ItemsPage: React.FC = () => {
           getCategories().then(setCategories).catch(() => {});
           fetchItems();
         }}
+      />
+
+      {/* CSV Bulk Import Dialog */}
+      <CsvImportDialog
+        open={csvImportDialogOpen}
+        onClose={() => setCsvImportDialogOpen(false)}
+        onSuccess={fetchItems}
       />
     </Box>
   );

@@ -57,3 +57,42 @@ export const toggleArchiveItem = async (id: string): Promise<Item> => {
   const res = await api.patch<Item>(`/items/${id}/archive`);
   return res.data;
 };
+
+export interface ImportRowError {
+  row: number;
+  errors: string[];
+}
+
+export interface ImportResult {
+  imported: number;
+  failed: number;
+  errors: ImportRowError[];
+}
+
+export const importItemsCsv = async (file: File): Promise<ImportResult> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await api.post<ImportResult>('/items/import-csv', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return res.data;
+};
+
+export const exportItemsCsv = async (): Promise<void> => {
+  const res = await api.get('/items/export-csv', {
+    responseType: 'blob',
+  });
+
+  const url = window.URL.createObjectURL(new Blob([res.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `stock_position_report_${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+

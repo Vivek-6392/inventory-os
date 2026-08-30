@@ -120,3 +120,31 @@ def get_multiple_items_stock(db: Session, item_ids: List[UUID]) -> Dict[UUID, in
     for row in results:
         stock_map[row.item_id] = int(row.on_hand or 0)
     return stock_map
+
+
+def get_all_items_stock_summary(db: Session) -> List[Dict]:
+    """
+    Returns full stock position across all items and locations for reporting and export.
+    """
+    items = db.query(Item).order_by(Item.name.asc()).all()
+    locations = db.query(Location).all()
+    if not items:
+        return []
+
+    item_ids = [item.id for item in items]
+    total_stock_map = get_multiple_items_stock(db, item_ids)
+
+    summary = []
+    for item in items:
+        loc_map = {}
+        for loc in locations:
+            qty = get_item_stock_at_location(db, item.id, loc.id)
+            loc_map[loc.id] = qty
+
+        summary.append({
+            "item": item,
+            "on_hand": total_stock_map.get(item.id, 0),
+            "stock_by_location": loc_map,
+        })
+    return summary
+

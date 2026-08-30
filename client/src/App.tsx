@@ -10,6 +10,7 @@ import { ItemDetailPage } from './pages/ItemDetailPage';
 import { MovementsPage } from './pages/MovementsPage';
 import { LocationsPage } from './pages/LocationsPage';
 import { UsersPage } from './pages/UsersPage';
+import { ImportExportPage } from './pages/ImportExportPage';
 
 // Protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -85,6 +86,7 @@ const App: React.FC = () => {
               <Route path="/items/:id" element={<ItemDetailPage />} />
               <Route path="/movements" element={<MovementsPage />} />
               <Route path="/locations" element={<LocationsPage />} />
+              <Route path="/import-export" element={<ImportExportPage />} />
               <Route
                 path="/users"
                 element={

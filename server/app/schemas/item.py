@@ -46,3 +46,15 @@ class PaginatedItemsResponse(BaseModel):
     page: int
     limit: int
     pages: int
+
+
+class ImportRowError(BaseModel):
+    row: int
+    errors: List[str]
+
+
+class ImportResult(BaseModel):
+    imported: int
+    failed: int
+    errors: List[ImportRowError]
+
