@@ -28,10 +28,16 @@ async def import_items_csv(
 
     Valid rows succeed, invalid rows fail with explicit row-level error reporting.
     """
-    if not file.filename.endswith(".csv"):
+    if not file.filename or not file.filename.endswith(".csv"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Uploaded file must be a .csv file",
+        )
+    # Also guard against wrong MIME type spoofing
+    if file.content_type and file.content_type not in ("text/csv", "application/csv", "application/vnd.ms-excel", "text/plain"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unexpected content type '{file.content_type}'. Expected a CSV file.",
         )
 
     content = await file.read()
@@ -152,48 +158,56 @@ async def import_items_csv(
             errors_list.append({"row": idx, "errors": row_errors})
             continue
 
-        # If valid, create item
-        desc = row.get("description", "")
-        item = Item(
-            sku=sku,
-            name=name,
-            description=desc if desc else None,
-            unit_of_measure=uom,
-            reorder_level=reorder_level,
-            category_id=category_obj.id if category_obj else None,
-        )
-        db.add(item)
-        db.flush()
-
-        seen_skus_in_batch.add(sku)
-        existing_skus.add(sku)
-
-        # Record history for creation
-        db.add(
-            ItemHistory(
-                item_id=item.id,
-                action="CREATED",
-                note="Created via bulk CSV import",
-                changed_by=current_user.id,
+        # If valid, create item inside a savepoint so a failure
+        # doesn't corrupt the outer transaction (e.g. DB constraint violation)
+        try:
+            sp = db.begin_nested()
+            desc = row.get("description", "")
+            item = Item(
+                sku=sku,
+                name=name,
+                description=desc if desc else None,
+                unit_of_measure=uom,
+                reorder_level=reorder_level,
+                category_id=category_obj.id if category_obj else None,
             )
-        )
+            db.add(item)
+            db.flush()
 
-        # Initialize alert state
-        db.add(AlertState(item_id=item.id, is_dismissed=False))
+            seen_skus_in_batch.add(sku)
+            existing_skus.add(sku)
 
-        # If initial stock provided, record initial receipt movement
-        if initial_stock > 0 and location_obj:
-            movement = StockMovement(
-                item_id=item.id,
-                kind=MovementKind.RECEIPT,
-                quantity=initial_stock,
-                location_id=location_obj.id,
-                reason="Initial inventory balance from CSV import",
-                recorded_by=current_user.id,
+            # Record history for creation
+            db.add(
+                ItemHistory(
+                    item_id=item.id,
+                    action="CREATED",
+                    note="Created via bulk CSV import",
+                    changed_by=current_user.id,
+                )
             )
-            db.add(movement)
 
-        imported_count += 1
+            # Initialize alert state
+            db.add(AlertState(item_id=item.id, is_dismissed=False))
+
+            # If initial stock provided, record initial receipt movement
+            if initial_stock > 0 and location_obj:
+                movement = StockMovement(
+                    item_id=item.id,
+                    kind=MovementKind.RECEIPT,
+                    quantity=initial_stock,
+                    location_id=location_obj.id,
+                    reason="Initial inventory balance from CSV import",
+                    recorded_by=current_user.id,
+                )
+                db.add(movement)
+
+            sp.commit()
+            imported_count += 1
+        except Exception as exc:
+            sp.rollback()
+            failed_count += 1
+            errors_list.append({"row": idx, "errors": [f"Database error: {str(exc)}"] })
 
     db.commit()
 

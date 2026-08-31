@@ -27,6 +27,8 @@ export interface Location {
   name: string;
   description: string | null;
   created_at: string;
+  staff_count?: number;
+  movement_count?: number;
 }
 
 export interface Item {

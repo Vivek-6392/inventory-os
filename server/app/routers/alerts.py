@@ -3,10 +3,10 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
-from app.models.models import AlertState, Item, User, UserRole
+from app.models.models import AlertState, Item, User
 from app.schemas.alert import AlertOut, AlertCountOut
 from app.middleware.auth import require_any, require_manager
 from app.services.stock_service import get_item_total_on_hand, get_multiple_items_stock
@@ -16,15 +16,29 @@ router = APIRouter(prefix="/api/alerts", tags=["alerts"])
 
 def _build_alert_list(db: Session, include_dismissed: bool = False) -> List[AlertOut]:
     """
-    Build alert list: all non-archived items where on_hand <= reorder_level
-    and (is_dismissed = False, or include_dismissed=True).
+    Build alert list: all non-archived items where on_hand <= reorder_level.
+    - include_dismissed=False → only active alerts (is_dismissed=False)
+    - include_dismissed=True  → active + dismissed alerts below reorder level
+
+    PERFORMANCE: batch-fetches stock levels and alert states to avoid N+1 queries.
     """
-    items = db.query(Item).filter(Item.archived == False).all()
+    items = db.query(Item).options(joinedload(Item.category)).filter(Item.archived == False).all()
     if not items:
         return []
 
     item_ids = [item.id for item in items]
+
+    # Batch-fetch all stock values (single aggregation query)
     stock_map = get_multiple_items_stock(db, item_ids)
+
+    # Batch-fetch alert states + dismissed_by_user in one query (no N+1)
+    alert_states = (
+        db.query(AlertState)
+        .options(joinedload(AlertState.dismissed_by_user))
+        .filter(AlertState.item_id.in_(item_ids))
+        .all()
+    )
+    alert_state_map = {str(state.item_id): state for state in alert_states}
 
     alerts = []
     for item in items:
@@ -32,11 +46,11 @@ def _build_alert_list(db: Session, include_dismissed: bool = False) -> List[Aler
         if on_hand > item.reorder_level:
             continue  # stock is fine, skip
 
-        state = db.query(AlertState).filter(AlertState.item_id == item.id).first()
+        state = alert_state_map.get(str(item.id))
         is_dismissed = state.is_dismissed if state else False
 
         if not include_dismissed and is_dismissed:
-            continue  # skip dismissed alerts in default view
+            continue  # skip dismissed in default view
 
         dismissed_by_name = None
         dismissed_at = None
@@ -73,7 +87,7 @@ def get_alert_count(
 ):
     """
     Goal 5: Return count of active (non-dismissed) low-stock alerts.
-    Used by the Layout badge to show real-time alert indicator.
+    Used by the Layout badge for real-time alert indicator.
     """
     alerts = _build_alert_list(db, include_dismissed=False)
     return AlertCountOut(count=len(alerts))
@@ -98,7 +112,6 @@ def list_all_alerts_including_dismissed(
 ):
     """
     Manager view: list all low-stock items including dismissed ones.
-    Useful for reviewing dismissed alerts that haven't been restocked.
     """
     return _build_alert_list(db, include_dismissed=True)
 
@@ -110,11 +123,11 @@ def dismiss_alert(
     current_user: User = Depends(require_manager),
 ):
     """
-    Goal 5: Manager dismisses a low-stock alert for an item.
-    Sets is_dismissed = True. The alert will auto-re-trigger when stock
-    rises above reorder_level AND a new movement is recorded (write-time trigger).
+    Goal 5: Manager dismisses a low-stock alert.
+    Guards: item must actually be below reorder level to dismiss.
+    Auto re-trigger: next movement that raises stock above reorder resets is_dismissed=False.
     """
-    item = db.query(Item).filter(Item.id == item_id).first()
+    item = db.query(Item).options(joinedload(Item.category)).filter(Item.id == item_id).first()
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -125,7 +138,8 @@ def dismiss_alert(
     if on_hand > item.reorder_level:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Item '{item.name}' is not currently below its reorder level (on-hand: {on_hand}, reorder: {item.reorder_level}). Nothing to dismiss.",
+            detail=f"Item '{item.name}' is not currently below its reorder level "
+                   f"(on-hand: {on_hand}, reorder: {item.reorder_level}). Nothing to dismiss.",
         )
 
     # Upsert alert_state row
@@ -140,8 +154,6 @@ def dismiss_alert(
     db.commit()
     db.refresh(state)
 
-    dismissed_by_name = current_user.name
-
     return AlertOut(
         item_id=item.id,
         sku=item.sku,
@@ -153,7 +165,7 @@ def dismiss_alert(
         deficit=max(0, item.reorder_level - on_hand),
         is_dismissed=True,
         dismissed_at=state.dismissed_at,
-        dismissed_by_name=dismissed_by_name,
+        dismissed_by_name=current_user.name,
     )
 
 
@@ -164,9 +176,9 @@ def undismiss_alert(
     current_user: User = Depends(require_manager),
 ):
     """
-    Manager manually re-activates a dismissed alert without a new movement.
+    Manager manually re-activates a dismissed alert without needing a new movement.
     """
-    item = db.query(Item).filter(Item.id == item_id).first()
+    item = db.query(Item).options(joinedload(Item.category)).filter(Item.id == item_id).first()
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

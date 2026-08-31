@@ -112,9 +112,10 @@ def list_items(
     total = query.count()
 
     # Sorting
-    order_func = getattr(func.coalesce(stock_subquery.c.total_on_hand, 0), sort_order if sort_order in ("asc", "desc") else "asc")
+    on_hand_expr = func.coalesce(stock_subquery.c.total_on_hand, 0)
     if sort_by == "on_hand":
-        query = query.order_by(order_func())
+        col = on_hand_expr.desc() if sort_order == "desc" else on_hand_expr.asc()
+        query = query.order_by(col)
     elif sort_by == "sku":
         col = Item.sku.desc() if sort_order == "desc" else Item.sku.asc()
         query = query.order_by(col)
@@ -372,10 +373,16 @@ def update_item(
         )
         item.reorder_level = payload.reorder_level
 
-    # Check Category change
-    if payload.category_id != item.category_id:
+    # Check Category change — guard against spurious None==None triggers
+    if payload.category_id != item.category_id and not (payload.category_id is None and item.category_id is None):
         old_cat = db.query(Category).filter(Category.id == item.category_id).first() if item.category_id else None
         new_cat = db.query(Category).filter(Category.id == payload.category_id).first() if payload.category_id else None
+
+        if payload.category_id and not new_cat:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Selected category does not exist",
+            )
 
         db.add(
             ItemHistory(
