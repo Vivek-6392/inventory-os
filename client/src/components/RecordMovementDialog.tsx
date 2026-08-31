@@ -44,7 +44,12 @@ export const RecordMovementDialog: React.FC<RecordMovementDialogProps> = ({
   onMovementRecorded,
 }) => {
   const theme = useTheme();
-  const { isManager } = useAuth();
+  const { user, isManager } = useAuth();
+
+  const assignedLocationIds = React.useMemo(() => {
+    if (isManager) return null; // Managers can access all locations
+    return new Set((user?.assigned_locations || []).map((l) => l.id));
+  }, [user, isManager]);
 
   const [items, setItems] = useState<Item[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -253,87 +258,99 @@ export const RecordMovementDialog: React.FC<RecordMovementDialogProps> = ({
               </TextField>
             </Grid>
 
-            {/* Dynamic Location Inputs */}
-            {kind === MovementKind.TRANSFER ? (
-              <>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    select
-                    fullWidth
-                    required
-                    label="Source Location (From)"
-                    value={fromLocationId}
-                    onChange={(e) => setFromLocationId(e.target.value)}
-                    helperText={
-                      activeItemDetails && fromLocationId
-                        ? `Available at source: ${activeItemDetails.stock_by_location?.[fromLocationId] ?? 0} ${activeItemDetails.unit_of_measure}`
-                        : 'Where stock is moving from'
-                    }
-                  >
-                    <MenuItem value="">
-                      <em>Select Source</em>
-                    </MenuItem>
-                    {locations.map((loc) => {
-                      const avail = activeItemDetails?.stock_by_location?.[loc.id] ?? 0;
-                      return (
-                        <MenuItem key={loc.id} value={loc.id} disabled={loc.id === toLocationId}>
-                          {loc.name} ({avail} avail)
-                        </MenuItem>
-                      );
-                    })}
-                  </TextField>
-                </Grid>
+          {!isManager && assignedLocationIds && assignedLocationIds.size === 0 && (
+            <Alert severity="warning" sx={{ mb: 2.5, borderRadius: 2 }}>
+              You are currently not assigned to any locations. Contact a manager to assign you to a warehouse to record stock movements.
+            </Alert>
+          )}
 
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    select
-                    fullWidth
-                    required
-                    label="Destination Location (To)"
-                    value={toLocationId}
-                    onChange={(e) => setToLocationId(e.target.value)}
-                    helperText="Where stock is arriving"
-                  >
-                    <MenuItem value="">
-                      <em>Select Destination</em>
-                    </MenuItem>
-                    {locations.map((loc) => (
-                      <MenuItem key={loc.id} value={loc.id} disabled={loc.id === fromLocationId}>
-                        {loc.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-              </>
-            ) : (
-              <Grid item xs={12} sm={7}>
+          {/* Dynamic Location Inputs */}
+          {kind === MovementKind.TRANSFER ? (
+            <>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   select
                   fullWidth
                   required
-                  label="Location"
-                  value={locationId}
-                  onChange={(e) => setLocationId(e.target.value)}
+                  label="Source Location (From)"
+                  value={fromLocationId}
+                  onChange={(e) => setFromLocationId(e.target.value)}
                   helperText={
-                    activeItemDetails && locationId
-                      ? `Stock at this location: ${activeItemDetails.stock_by_location?.[locationId] ?? 0} ${activeItemDetails.unit_of_measure}`
-                      : 'Select warehouse or retail location'
+                    activeItemDetails && fromLocationId
+                      ? `Available at source: ${activeItemDetails.stock_by_location?.[fromLocationId] ?? 0} ${activeItemDetails.unit_of_measure}`
+                      : 'Where stock is moving from'
                   }
                 >
                   <MenuItem value="">
-                    <em>Select Location</em>
+                    <em>Select Source</em>
                   </MenuItem>
                   {locations.map((loc) => {
                     const avail = activeItemDetails?.stock_by_location?.[loc.id] ?? 0;
+                    const isAssigned = !assignedLocationIds || assignedLocationIds.has(loc.id);
                     return (
-                      <MenuItem key={loc.id} value={loc.id}>
-                        {loc.name} ({avail} on hand)
+                      <MenuItem
+                        key={loc.id}
+                        value={loc.id}
+                        disabled={loc.id === toLocationId || !isAssigned}
+                      >
+                        {loc.name} ({avail} avail){!isAssigned ? ' — [Not Assigned]' : ''}
                       </MenuItem>
                     );
                   })}
                 </TextField>
               </Grid>
-            )}
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  fullWidth
+                  required
+                  label="Destination Location (To)"
+                  value={toLocationId}
+                  onChange={(e) => setToLocationId(e.target.value)}
+                  helperText="Where stock is arriving"
+                >
+                  <MenuItem value="">
+                    <em>Select Destination</em>
+                  </MenuItem>
+                  {locations.map((loc) => (
+                    <MenuItem key={loc.id} value={loc.id} disabled={loc.id === fromLocationId}>
+                      {loc.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            </>
+          ) : (
+            <Grid item xs={12} sm={7}>
+              <TextField
+                select
+                fullWidth
+                required
+                label="Location"
+                value={locationId}
+                onChange={(e) => setLocationId(e.target.value)}
+                helperText={
+                  activeItemDetails && locationId
+                    ? `Stock at this location: ${activeItemDetails.stock_by_location?.[locationId] ?? 0} ${activeItemDetails.unit_of_measure}`
+                    : 'Select warehouse or retail location'
+                }
+              >
+                <MenuItem value="">
+                  <em>Select Location</em>
+                </MenuItem>
+                {locations.map((loc) => {
+                  const avail = activeItemDetails?.stock_by_location?.[loc.id] ?? 0;
+                  const isAssigned = !assignedLocationIds || assignedLocationIds.has(loc.id);
+                  return (
+                    <MenuItem key={loc.id} value={loc.id} disabled={!isAssigned}>
+                      {loc.name} ({avail} on hand){!isAssigned ? ' — [Not Assigned]' : ''}
+                    </MenuItem>
+                  );
+                })}
+              </TextField>
+            </Grid>
+          )}
 
             {/* Quantity */}
             <Grid item xs={12} sm={kind === MovementKind.TRANSFER ? 12 : 5}>

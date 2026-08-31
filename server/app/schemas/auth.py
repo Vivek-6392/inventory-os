@@ -34,12 +34,21 @@ class TokenPayload(BaseModel):
     exp: int
 
 
+class LocationBasicOut(BaseModel):
+    id: UUID
+    name: str
+
+    class Config:
+        from_attributes = True
+
+
 class UserOut(BaseModel):
     id: UUID
     email: str
     name: str
     role: UserRole
     created_at: datetime
+    assigned_locations: list[LocationBasicOut] = []
 
     class Config:
         from_attributes = True

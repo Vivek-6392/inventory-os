@@ -9,6 +9,7 @@ export interface User {
   name: string;
   role: UserRole;
   created_at: string;
+  assigned_locations?: Location[];
 }
 
 export interface AuthToken {
