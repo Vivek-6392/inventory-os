@@ -70,7 +70,7 @@ const Layout: React.FC = () => {
   useEffect(() => {
     const fetchAlertCount = async () => {
       try {
-        const res = await api.get('/dashboard/alerts-count');
+        const res = await api.get('/alerts/count');
         setAlertCount(res.data.count);
       } catch {
         // Silently fail if alerts endpoint not ready yet
