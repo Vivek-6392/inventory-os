@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, categories, items, movements, locations, users, history, csv_tools
+from app.routers import auth, categories, items, movements, locations, users, history, csv_tools, dashboard
 
 app = FastAPI(
     title="Inventory & Stock Control API",
@@ -36,6 +36,7 @@ app.include_router(movements.router)
 app.include_router(locations.router)
 app.include_router(users.router)
 app.include_router(history.router)
+app.include_router(dashboard.router)
 
 
 # ---------------------------------------------------------------------------
