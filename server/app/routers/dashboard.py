@@ -13,6 +13,7 @@ from app.schemas.dashboard import (
     LowStockItemSummary,
     RecentMovementSummary,
     MovementTrendDay,
+    MovementTrendWeek,
 )
 from app.middleware.auth import require_any
 from app.services.stock_service import get_all_items_stock_summary, get_item_total_on_hand
@@ -174,8 +175,20 @@ def get_dashboard_stats(
             )
         )
 
-    # 4. 14-day movement volume trends
+    # 4. Movements today and distinct items moved this week (Goal 8)
     now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    movements_today = db.query(StockMovement).filter(StockMovement.created_at >= today_start).count()
+
+    seven_days_ago = now - timedelta(days=7)
+    distinct_items_moved_this_week = (
+        db.query(StockMovement.item_id)
+        .filter(StockMovement.created_at >= seven_days_ago)
+        .distinct()
+        .count()
+    )
+
+    # 5. 14-day daily movement volume trends
     daily_trends_map = {}
     for i in range(13, -1, -1):
         day_date = (now - timedelta(days=i)).strftime("%Y-%m-%d")
@@ -215,6 +228,34 @@ def get_dashboard_stats(
         for d, counts in daily_trends_map.items()
     ]
 
+    # 6. 8-Week Receipt and Issue Volume Trends (Goal 8 specification)
+    eight_weeks_ago = now - timedelta(weeks=8)
+    eight_weeks_movements = (
+        db.query(StockMovement)
+        .filter(StockMovement.created_at >= eight_weeks_ago)
+        .all()
+    )
+    weekly_movement_trends = []
+    for w in range(7, -1, -1):
+        w_start = now - timedelta(weeks=w + 1)
+        w_end = now - timedelta(weeks=w)
+        label = f"Wk {8 - w} ({w_start.strftime('%b %d')})"
+        w_receipts = 0
+        w_issues = 0
+        for m in eight_weeks_movements:
+            if w_start <= m.created_at < w_end:
+                if m.kind == MovementKind.RECEIPT:
+                    w_receipts += m.quantity
+                elif m.kind == MovementKind.ISSUE:
+                    w_issues += m.quantity
+        weekly_movement_trends.append(
+            MovementTrendWeek(
+                week_label=label,
+                receipts=w_receipts,
+                issues=w_issues,
+            )
+        )
+
     return DashboardStatsOut(
         total_items=total_items,
         archived_items=archived_items,
@@ -222,9 +263,12 @@ def get_dashboard_stats(
         low_stock_count=len(low_stock_items_list),
         total_locations=total_locations,
         total_movements=total_movements,
+        movements_today=movements_today,
+        distinct_items_moved_this_week=distinct_items_moved_this_week,
         category_distribution=category_distribution,
         location_distribution=location_distribution,
         low_stock_items=low_stock_items_list[:10],
         recent_movements=recent_movements,
         movement_trends=movement_trends,
+        weekly_movement_trends=weekly_movement_trends,
     )

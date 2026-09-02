@@ -74,3 +74,42 @@ def test_stock_position_csv_export(client: TestClient, staff_headers: dict):
     assert "stock_position_report.csv" in response.headers.get("content-disposition", "")
     content = response.text
     assert "SKU,Item Name,Description,Category,Unit of Measure" in content
+
+
+def test_bulk_receipts_csv_import_success_and_partial_failure(client: TestClient, manager_headers: dict):
+    # Create test item and location
+    sku = f"REC-CSV-{uuid4().hex[:6]}"
+    item_res = client.post(
+        "/api/items",
+        headers=manager_headers,
+        json={"sku": sku, "name": "Receipt CSV Item", "unit_of_measure": "pcs", "reorder_level": 5},
+    )
+    assert item_res.status_code == 201
+
+    loc_res = client.post(
+        "/api/locations",
+        headers=manager_headers,
+        json={"name": f"Receipt Loc {uuid4().hex[:4]}"},
+    )
+    assert loc_res.status_code == 201
+    loc_name = loc_res.json()["name"]
+
+    csv_data = f"""sku,location,quantity,reason
+{sku},{loc_name},25,Bulk delivery from supplier
+NON_EXISTENT_SKU,{loc_name},10,Should fail
+{sku},NON_EXISTENT_LOC,15,Should fail
+{sku},{loc_name},-5,Should fail
+"""
+    files = {"file": ("receipts.csv", csv_data.encode("utf-8"), "text/csv")}
+    response = client.post("/api/items/import-receipts-csv", headers=manager_headers, files=files)
+
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["imported"] == 1
+    assert data["failed"] == 3
+    assert len(data["errors"]) == 3
+
+    # Check updated on-hand
+    updated_item = client.get(f"/api/items/{item_res.json()['id']}", headers=manager_headers).json()
+    assert updated_item["on_hand"] == 25
+

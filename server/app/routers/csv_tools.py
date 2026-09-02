@@ -285,3 +285,148 @@ def export_stock_csv(
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=stock_position_report.csv"},
     )
+
+
+@router.post("/import-receipts-csv", response_model=ImportResult)
+async def import_stock_receipts_csv(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_any),
+):
+    """
+    Goal 7: Bulk import stock receipts from CSV file.
+    Expected CSV columns: sku, location, quantity, reason (optional)
+    Enforces staff location permissions if recorded by a staff member.
+    Valid rows succeed, invalid rows fail with explicit row-level error reporting.
+    """
+    if not file.filename or not file.filename.endswith(".csv"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file must be a .csv file",
+        )
+
+    if file.content_type and file.content_type not in ("text/csv", "application/csv", "application/vnd.ms-excel", "text/plain"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unexpected content type '{file.content_type}'. Expected a CSV file.",
+        )
+
+    content = await file.read()
+    try:
+        decoded = content.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        try:
+            decoded = content.decode("latin-1")
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Unable to decode CSV file. Please upload a UTF-8 encoded CSV.",
+            )
+
+    reader = csv.DictReader(io.StringIO(decoded))
+    if not reader.fieldnames:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="CSV file appears to be empty or has no headers.",
+        )
+
+    fieldnames = [f.strip().lower() for f in reader.fieldnames if f]
+    required_fields = {"sku", "location", "quantity"}
+    missing = required_fields - set(fieldnames)
+    if missing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"CSV missing required columns: {', '.join(missing)}. Required: sku, location, quantity",
+        )
+
+    # Pre-fetch lookup maps
+    existing_items = {i.sku.upper(): i for i in db.query(Item).all()}
+    existing_locations = {l.name.lower(): l for l in db.query(Location).all()}
+    assigned_loc_ids = {l.id for l in current_user.assigned_locations} if current_user.role.value == "STAFF" else None
+
+    imported_count = 0
+    failed_count = 0
+    errors_list = []
+
+    rows = list(reader)
+    for idx, raw_row in enumerate(rows, start=2):
+        row = {k.strip().lower(): (v.strip() if v else "") for k, v in raw_row.items() if k}
+        row_errors = []
+
+        # Validate SKU
+        sku = row.get("sku", "").upper()
+        item = existing_items.get(sku)
+        if not sku:
+            row_errors.append("SKU is required")
+        elif not item:
+            row_errors.append(f"Item with SKU '{sku}' not found in catalog")
+        elif item.archived:
+            row_errors.append(f"Item '{sku}' is archived. Cannot record receipts against archived items.")
+
+        # Validate Location
+        loc_name = row.get("location", "")
+        location = existing_locations.get(loc_name.lower()) if loc_name else None
+        if not loc_name:
+            row_errors.append("Location is required")
+        elif not location:
+            row_errors.append(f"Location '{loc_name}' not found")
+        elif assigned_loc_ids is not None and location.id not in assigned_loc_ids:
+            row_errors.append(f"Staff member is not assigned to location '{location.name}'")
+
+        # Validate Quantity
+        qty_str = row.get("quantity", "")
+        quantity = 0
+        if not qty_str:
+            row_errors.append("Quantity is required")
+        else:
+            try:
+                quantity = int(qty_str)
+                if quantity <= 0:
+                    row_errors.append("Quantity must be greater than 0")
+            except ValueError:
+                row_errors.append(f"Invalid quantity '{qty_str}': must be a positive integer")
+
+        if row_errors:
+            failed_count += 1
+            errors_list.append({"row": idx, "errors": row_errors})
+            continue
+
+        try:
+            sp = db.begin_nested()
+            reason_text = row.get("reason", "").strip() or "Bulk receipt from CSV import"
+
+            movement = StockMovement(
+                item_id=item.id,
+                kind=MovementKind.RECEIPT,
+                quantity=quantity,
+                location_id=location.id,
+                reason=reason_text,
+                recorded_by=current_user.id,
+            )
+            db.add(movement)
+            db.flush()
+
+            # Write-time alert re-trigger
+            alert_state = db.query(AlertState).filter(AlertState.item_id == item.id).first()
+            if alert_state and alert_state.is_dismissed:
+                # Check new on_hand
+                from app.services.stock_service import get_item_total_on_hand
+                if get_item_total_on_hand(db, item.id) > item.reorder_level:
+                    alert_state.is_dismissed = False
+                    alert_state.dismissed_at = None
+                    alert_state.dismissed_by = None
+
+            sp.commit()
+            imported_count += 1
+        except Exception as exc:
+            sp.rollback()
+            failed_count += 1
+            errors_list.append({"row": idx, "errors": [f"Database error: {str(exc)}"]})
+
+    db.commit()
+
+    return ImportResult(
+        imported=imported_count,
+        failed=failed_count,
+        errors=errors_list,
+    )

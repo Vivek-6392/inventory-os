@@ -47,6 +47,12 @@ export interface MovementTrendDay {
   adjustments: number;
 }
 
+export interface MovementTrendWeek {
+  week_label: string;
+  receipts: number;
+  issues: number;
+}
+
 export interface DashboardStats {
   total_items: number;
   archived_items: number;
@@ -54,11 +60,14 @@ export interface DashboardStats {
   low_stock_count: number;
   total_locations: number;
   total_movements: number;
+  movements_today: number;
+  distinct_items_moved_this_week: number;
   category_distribution: CategoryStockDistribution[];
   location_distribution: LocationStockDistribution[];
   low_stock_items: LowStockItemSummary[];
   recent_movements: RecentMovementSummary[];
   movement_trends: MovementTrendDay[];
+  weekly_movement_trends?: MovementTrendWeek[];
 }
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {

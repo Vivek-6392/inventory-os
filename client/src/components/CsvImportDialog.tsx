@@ -25,15 +25,16 @@ import {
   Close as CloseIcon,
   InsertDriveFile as FileIcon,
 } from '@mui/icons-material';
-import { importItemsCsv, type ImportResult } from '../services/items';
+import { importItemsCsv, importReceiptsCsv, type ImportResult } from '../services/items';
 
 interface CsvImportDialogProps {
   open: boolean;
+  mode?: 'items' | 'receipts';
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export const CsvImportDialog: React.FC<CsvImportDialogProps> = ({ open, onClose, onSuccess }) => {
+export const CsvImportDialog: React.FC<CsvImportDialogProps> = ({ open, mode = 'items', onClose, onSuccess }) => {
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -95,17 +96,30 @@ export const CsvImportDialog: React.FC<CsvImportDialogProps> = ({ open, onClose,
   };
 
   const handleDownloadTemplate = () => {
-    const templateContent =
-      'sku,name,description,category,unit_of_measure,reorder_level,initial_stock,initial_location\n' +
-      'SKU-WIDGET-01,Heavy Duty Industrial Widget,High durability polymer widget,Industrial,pcs,15,50,Main Warehouse\n' +
-      'SKU-BOLT-02,M8 Hex Head Steel Bolts,Pack of 100 zinc coated bolts,Fasteners,pack,20,100,Retail Floor A\n' +
-      'SKU-CABLE-03,Cat6 Ethernet Cable 10m,Shielded blue patch cable,Electronics,pcs,10,0,\n';
+    let templateContent = '';
+    let fileName = '';
+
+    if (mode === 'receipts') {
+      templateContent =
+        'sku,location,quantity,reason\n' +
+        'SKU-WIDGET-01,Main Warehouse,25,Vendor delivery shipment #104\n' +
+        'SKU-BOLT-02,Retail Floor A,50,Weekly restock pallet\n' +
+        'SKU-CABLE-03,Main Warehouse,15,Received via freight\n';
+      fileName = 'stock_receipts_template.csv';
+    } else {
+      templateContent =
+        'sku,name,description,category,unit_of_measure,reorder_level,initial_stock,initial_location\n' +
+        'SKU-WIDGET-01,Heavy Duty Industrial Widget,High durability polymer widget,Industrial,pcs,15,50,Main Warehouse\n' +
+        'SKU-BOLT-02,M8 Hex Head Steel Bolts,Pack of 100 zinc coated bolts,Fasteners,pack,20,100,Retail Floor A\n' +
+        'SKU-CABLE-03,Cat6 Ethernet Cable 10m,Shielded blue patch cable,Electronics,pcs,10,0,\n';
+      fileName = 'items_import_template.csv';
+    }
 
     const blob = new Blob([templateContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'items_import_template.csv');
+    link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -119,7 +133,9 @@ export const CsvImportDialog: React.FC<CsvImportDialogProps> = ({ open, onClose,
     setResult(null);
 
     try {
-      const res = await importItemsCsv(selectedFile);
+      const res = mode === 'receipts'
+        ? await importReceiptsCsv(selectedFile)
+        : await importItemsCsv(selectedFile);
       setResult(res);
       if (res.imported > 0 && res.failed === 0) {
         // Full success
@@ -138,7 +154,7 @@ export const CsvImportDialog: React.FC<CsvImportDialogProps> = ({ open, onClose,
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <UploadIcon color="primary" />
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Bulk CSV Item Import
+            {mode === 'receipts' ? 'Bulk Stock Receipts CSV Import' : 'Bulk CSV Item Catalog Import'}
           </Typography>
         </Box>
         <IconButton onClick={handleClose} size="small">
@@ -165,7 +181,9 @@ export const CsvImportDialog: React.FC<CsvImportDialogProps> = ({ open, onClose,
               Need the CSV template?
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Includes required headers: sku, name, unit_of_measure, reorder_level, initial_stock, initial_location
+              {mode === 'receipts'
+                ? 'Required columns: sku, location, quantity. Optional: reason'
+                : 'Required columns: sku, name, unit_of_measure, reorder_level. Optional: category, description, initial_stock, initial_location'}
             </Typography>
           </Box>
           <Button

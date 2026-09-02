@@ -81,6 +81,18 @@ export const importItemsCsv = async (file: File): Promise<ImportResult> => {
   return res.data;
 };
 
+export const importReceiptsCsv = async (file: File): Promise<ImportResult> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await api.post<ImportResult>('/items/import-receipts-csv', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return res.data;
+};
+
 export const exportItemsCsv = async (): Promise<void> => {
   const res = await api.get('/items/export-csv', {
     responseType: 'blob',

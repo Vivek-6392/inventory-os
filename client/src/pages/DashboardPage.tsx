@@ -22,6 +22,8 @@ import {
   Avatar,
   Divider,
   Stack,
+  ToggleButtonGroup,
+  ToggleButton,
   alpha,
   useTheme,
 } from '@mui/material';
@@ -35,6 +37,8 @@ import {
   Add as AddIcon,
   TrendingUp as TrendingUpIcon,
   Category as CategoryIcon,
+  Today as TodayIcon,
+  DateRange as DateRangeIcon,
 } from '@mui/icons-material';
 import {
   ResponsiveContainer,
@@ -63,6 +67,7 @@ export const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [trendMode, setTrendMode] = useState<'weekly' | 'daily'>('weekly');
 
   const fetchStats = async () => {
     setLoading(true);
@@ -150,14 +155,15 @@ export const DashboardPage: React.FC = () => {
         </Stack>
       </Box>
 
-      {/* KPI Cards Row */}
+      {/* KPI Cards Row (Goal 8 Headline Numbers) */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
         {/* Total Stock Units */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={4} lg={2}>
           <Card
             sx={{
-              p: 2.5,
+              p: 2,
               borderRadius: 3,
+              height: '100%',
               background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
               border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
             }}
@@ -165,29 +171,30 @@ export const DashboardPage: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Box>
                 <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Total On-Hand Units
+                  Total Units
                 </Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
                   {stats.total_stock_units.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Across {stats.total_locations} warehouse locations
+                  Across {stats.total_locations} locations
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2), color: 'primary.main', width: 44, height: 44 }}>
-                <TrendingUpIcon />
+              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2), color: 'primary.main', width: 40, height: 40 }}>
+                <TrendingUpIcon fontSize="small" />
               </Avatar>
             </Box>
           </Card>
         </Grid>
 
         {/* Low Stock Alerts */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={4} lg={2}>
           <Card
             onClick={() => navigate('/alerts')}
             sx={{
-              p: 2.5,
+              p: 2,
               borderRadius: 3,
+              height: '100%',
               cursor: 'pointer',
               background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, stats.low_stock_count > 0 ? 0.15 : 0.05)} 0%, ${theme.palette.background.paper} 100%)`,
               border: `1px solid ${alpha(theme.palette.warning.main, stats.low_stock_count > 0 ? 0.3 : 0.1)}`,
@@ -198,29 +205,98 @@ export const DashboardPage: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Box>
                 <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Low Stock Alerts
+                  Low Stock
                 </Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: stats.low_stock_count > 0 ? 'warning.main' : 'text.primary' }}>
                   {stats.low_stock_count}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {stats.low_stock_count > 0 ? 'Items below reorder point' : 'All stock levels healthy'}
+                  {stats.low_stock_count > 0 ? 'At or below reorder' : 'All levels healthy'}
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.2), color: 'warning.main', width: 44, height: 44 }}>
-                <WarningIcon />
+              <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.2), color: 'warning.main', width: 40, height: 40 }}>
+                <WarningIcon fontSize="small" />
+              </Avatar>
+            </Box>
+          </Card>
+        </Grid>
+
+        {/* Movements Recorded Today (Goal 8 Headline) */}
+        <Grid item xs={12} sm={6} md={4} lg={2}>
+          <Card
+            onClick={() => navigate('/movements')}
+            sx={{
+              p: 2,
+              borderRadius: 3,
+              height: '100%',
+              cursor: 'pointer',
+              background: `linear-gradient(135deg, ${alpha(theme.palette.info.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
+              border: `1px solid ${alpha(theme.palette.info.main, 0.2)}`,
+              transition: 'transform 0.2s ease',
+              '&:hover': { transform: 'translateY(-2px)' },
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                  Movements Today
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
+                  {stats.movements_today}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Logged since 00:00 UTC
+                </Typography>
+              </Box>
+              <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.2), color: 'info.main', width: 40, height: 40 }}>
+                <TodayIcon fontSize="small" />
+              </Avatar>
+            </Box>
+          </Card>
+        </Grid>
+
+        {/* Items Moved This Week (Goal 8 Headline) */}
+        <Grid item xs={12} sm={6} md={4} lg={2}>
+          <Card
+            onClick={() => navigate('/movements')}
+            sx={{
+              p: 2,
+              borderRadius: 3,
+              height: '100%',
+              cursor: 'pointer',
+              background: `linear-gradient(135deg, ${alpha(theme.palette.success.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
+              border: `1px solid ${alpha(theme.palette.success.main, 0.2)}`,
+              transition: 'transform 0.2s ease',
+              '&:hover': { transform: 'translateY(-2px)' },
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                  Moved This Week
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
+                  {stats.distinct_items_moved_this_week}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Distinct items in 7 days
+                </Typography>
+              </Box>
+              <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), color: 'success.main', width: 40, height: 40 }}>
+                <DateRangeIcon fontSize="small" />
               </Avatar>
             </Box>
           </Card>
         </Grid>
 
         {/* Active Catalog Items */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={4} lg={2}>
           <Card
             onClick={() => navigate('/items')}
             sx={{
-              p: 2.5,
+              p: 2,
               borderRadius: 3,
+              height: '100%',
               cursor: 'pointer',
               background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
               border: `1px solid ${alpha(theme.palette.secondary.main, 0.2)}`,
@@ -237,23 +313,24 @@ export const DashboardPage: React.FC = () => {
                   {stats.total_items}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {stats.archived_items} archived items
+                  {stats.archived_items} archived
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.2), color: 'secondary.main', width: 44, height: 44 }}>
-                <InventoryIcon />
+              <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.2), color: 'secondary.main', width: 40, height: 40 }}>
+                <InventoryIcon fontSize="small" />
               </Avatar>
             </Box>
           </Card>
         </Grid>
 
         {/* Ledger Transactions */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={4} lg={2}>
           <Card
             onClick={() => navigate('/movements')}
             sx={{
-              p: 2.5,
+              p: 2,
               borderRadius: 3,
+              height: '100%',
               cursor: 'pointer',
               background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${theme.palette.background.paper} 100%)`,
               border: `1px solid ${alpha(theme.palette.divider, 0.8)}`,
@@ -264,17 +341,17 @@ export const DashboardPage: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Box>
                 <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Ledger Transactions
+                  Total Ledger
                 </Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
                   {stats.total_movements}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Immutable append-only entries
+                  Append-only records
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.text.primary, 0.1), color: 'text.primary', width: 44, height: 44 }}>
-                <MovementsIcon />
+              <Avatar sx={{ bgcolor: alpha(theme.palette.text.primary, 0.1), color: 'text.primary', width: 40, height: 40 }}>
+                <MovementsIcon fontSize="small" />
               </Avatar>
             </Box>
           </Card>
@@ -283,77 +360,116 @@ export const DashboardPage: React.FC = () => {
 
       {/* Visual Analytics Row */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        {/* 14-Day Movement Trends (Area Chart) */}
+        {/* Movement Trends (8 Weeks or 14 Days) */}
         <Grid item xs={12} lg={8}>
           <Card sx={{ p: 3, borderRadius: 3, height: '100%' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  14-Day Movement Volume Trends
+                  {trendMode === 'weekly' ? '8-Week Receipt & Issue Volume' : '14-Day Movement Trends'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Daily aggregate quantities for Receipts, Issues, Transfers, and Adjustments
+                  {trendMode === 'weekly'
+                    ? 'Weekly totals for incoming Receipts vs outgoing Issues over the last 8 weeks'
+                    : 'Daily aggregate quantities for Receipts, Issues, Transfers, and Adjustments'}
                 </Typography>
               </Box>
+
+              <ToggleButtonGroup
+                value={trendMode}
+                exclusive
+                onChange={(_, val) => {
+                  if (val) setTrendMode(val);
+                }}
+                size="small"
+              >
+                <ToggleButton value="weekly" sx={{ px: 1.5, py: 0.5, fontSize: '0.75rem', fontWeight: 600 }}>
+                  8 Weeks
+                </ToggleButton>
+                <ToggleButton value="daily" sx={{ px: 1.5, py: 0.5, fontSize: '0.75rem', fontWeight: 600 }}>
+                  14 Days
+                </ToggleButton>
+              </ToggleButtonGroup>
             </Box>
 
             <Box sx={{ width: '100%', height: 300 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.movement_trends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="receiptGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00D9A6" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#00D9A6" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="issueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#FF5252" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#FF5252" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="transferGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6C63FF" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#6C63FF" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 11, fill: theme.palette.text.secondary }}
-                    tickFormatter={(val) => val.slice(5)}
-                  />
-                  <YAxis tick={{ fontSize: 11, fill: theme.palette.text.secondary }} />
-                  <RechartsTooltip
-                    contentStyle={{
-                      backgroundColor: theme.palette.background.paper,
-                      border: `1px solid ${theme.palette.divider}`,
-                      borderRadius: 8,
-                    }}
-                  />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="receipts"
-                    name="Receipts"
-                    stroke="#00D9A6"
-                    fillOpacity={1}
-                    fill="url(#receiptGrad)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="issues"
-                    name="Issues"
-                    stroke="#FF5252"
-                    fillOpacity={1}
-                    fill="url(#issueGrad)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="transfers"
-                    name="Transfers"
-                    stroke="#6C63FF"
-                    fillOpacity={1}
-                    fill="url(#transferGrad)"
-                  />
-                </AreaChart>
+                {trendMode === 'weekly' ? (
+                  <BarChart
+                    data={stats.weekly_movement_trends || []}
+                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+                    <XAxis dataKey="week_label" tick={{ fontSize: 11, fill: theme.palette.text.secondary }} />
+                    <YAxis tick={{ fontSize: 11, fill: theme.palette.text.secondary }} />
+                    <RechartsTooltip
+                      contentStyle={{
+                        backgroundColor: theme.palette.background.paper,
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: 8,
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="receipts" name="Receipts (Incoming)" fill="#00D9A6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="issues" name="Issues (Outgoing)" fill="#FF5252" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                ) : (
+                  <AreaChart data={stats.movement_trends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="receiptGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#00D9A6" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#00D9A6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="issueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#FF5252" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#FF5252" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="transferGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6C63FF" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#6C63FF" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11, fill: theme.palette.text.secondary }}
+                      tickFormatter={(val) => val.slice(5)}
+                    />
+                    <YAxis tick={{ fontSize: 11, fill: theme.palette.text.secondary }} />
+                    <RechartsTooltip
+                      contentStyle={{
+                        backgroundColor: theme.palette.background.paper,
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: 8,
+                      }}
+                    />
+                    <Legend />
+                    <Area
+                      type="monotone"
+                      dataKey="receipts"
+                      name="Receipts"
+                      stroke="#00D9A6"
+                      fillOpacity={1}
+                      fill="url(#receiptGrad)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="issues"
+                      name="Issues"
+                      stroke="#FF5252"
+                      fillOpacity={1}
+                      fill="url(#issueGrad)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="transfers"
+                      name="Transfers"
+                      stroke="#6C63FF"
+                      fillOpacity={1}
+                      fill="url(#transferGrad)"
+                    />
+                  </AreaChart>
+                )}
               </ResponsiveContainer>
             </Box>
           </Card>

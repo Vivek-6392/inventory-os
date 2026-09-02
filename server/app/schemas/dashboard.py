@@ -51,6 +51,12 @@ class MovementTrendDay(BaseModel):
     adjustments: int
 
 
+class MovementTrendWeek(BaseModel):
+    week_label: str
+    receipts: int
+    issues: int
+
+
 class DashboardStatsOut(BaseModel):
     total_items: int
     archived_items: int
@@ -58,8 +64,11 @@ class DashboardStatsOut(BaseModel):
     low_stock_count: int
     total_locations: int
     total_movements: int
+    movements_today: int = 0
+    distinct_items_moved_this_week: int = 0
     category_distribution: List[CategoryStockDistribution]
     location_distribution: List[LocationStockDistribution]
     low_stock_items: List[LowStockItemSummary]
     recent_movements: List[RecentMovementSummary]
     movement_trends: List[MovementTrendDay]
+    weekly_movement_trends: List[MovementTrendWeek] = []

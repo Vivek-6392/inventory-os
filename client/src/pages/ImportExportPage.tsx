@@ -40,6 +40,7 @@ export const ImportExportPage: React.FC = () => {
   const theme = useTheme();
   const { isManager } = useAuth();
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [receiptsImportDialogOpen, setReceiptsImportDialogOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -101,8 +102,8 @@ export const ImportExportPage: React.FC = () => {
 
       {/* Main Action Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {/* Bulk Import Card */}
-        <Grid item xs={12} md={6}>
+        {/* 1. Bulk Product Catalog Import Card */}
+        <Grid item xs={12} lg={4}>
           <Card
             sx={{
               height: '100%',
@@ -129,7 +130,7 @@ export const ImportExportPage: React.FC = () => {
                 </Box>
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Bulk CSV Product Import
+                    Product Catalog Import
                   </Typography>
                   <Chip
                     label={isManager ? 'Manager Authorized' : 'Manager Only'}
@@ -142,8 +143,8 @@ export const ImportExportPage: React.FC = () => {
               </Box>
 
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Upload a structured CSV file to create items in bulk. Automatically validates unique SKUs, assigns
-                categories, and records opening inventory balances.
+                Upload a structured CSV to create new items in bulk. Validates SKUs, auto-creates categories,
+                and records opening inventory balances.
               </Typography>
 
               <List dense disablePadding>
@@ -152,7 +153,7 @@ export const ImportExportPage: React.FC = () => {
                     <CheckIcon color="success" fontSize="small" />
                   </ListItemIcon>
                   <ListItemText
-                    primary="Creates categories & locations automatically on the fly"
+                    primary="Creates categories automatically"
                     primaryTypographyProps={{ variant: 'body2' }}
                   />
                 </ListItem>
@@ -161,7 +162,7 @@ export const ImportExportPage: React.FC = () => {
                     <CheckIcon color="success" fontSize="small" />
                   </ListItemIcon>
                   <ListItemText
-                    primary="Records initial receipt movements for items with initial stock"
+                    primary="Optional initial stock opening balances"
                     primaryTypographyProps={{ variant: 'body2' }}
                   />
                 </ListItem>
@@ -170,7 +171,7 @@ export const ImportExportPage: React.FC = () => {
                     <CheckIcon color="success" fontSize="small" />
                   </ListItemIcon>
                   <ListItemText
-                    primary="Detailed row-by-row error report on validation failures"
+                    primary="Per-row validation error reporting"
                     primaryTypographyProps={{ variant: 'body2' }}
                   />
                 </ListItem>
@@ -186,21 +187,112 @@ export const ImportExportPage: React.FC = () => {
                 disabled={!isManager}
                 onClick={() => setImportDialogOpen(true)}
               >
-                Upload & Import CSV
+                Import Items
               </Button>
               <Button
                 variant="outlined"
+                size="small"
                 startIcon={<TemplateIcon />}
                 onClick={handleDownloadTemplate}
               >
-                Download Template
+                Template
               </Button>
             </CardActions>
           </Card>
         </Grid>
 
-        {/* Stock Position Export Card */}
-        <Grid item xs={12} md={6}>
+        {/* 2. Bulk Stock Receipts Import Card (Goal 7) */}
+        <Grid item xs={12} lg={4}>
+          <Card
+            sx={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: 3,
+              border: `1px solid ${alpha(theme.palette.success.main, 0.2)}`,
+            }}
+          >
+            <CardContent sx={{ flex: 1, p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                <Box
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 2.5,
+                    backgroundColor: alpha(theme.palette.success.main, 0.12),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <ImportIcon color="success" sx={{ fontSize: 26 }} />
+                </Box>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    Stock Receipts Import
+                  </Typography>
+                  <Chip
+                    label="All Staff Access"
+                    size="small"
+                    color="success"
+                    variant="outlined"
+                    sx={{ height: 20, fontSize: '0.7rem', fontWeight: 600 }}
+                  />
+                </Box>
+              </Box>
+
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Upload supplier delivery sheets to log incoming inventory receipts in bulk across warehouses with location permission checks.
+              </Typography>
+
+              <List dense disablePadding>
+                <ListItem disableGutters>
+                  <ListItemIcon sx={{ minWidth: 32 }}>
+                    <CheckIcon color="success" fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Columns: sku, location, quantity, reason"
+                    primaryTypographyProps={{ variant: 'body2' }}
+                  />
+                </ListItem>
+                <ListItem disableGutters>
+                  <ListItemIcon sx={{ minWidth: 32 }}>
+                    <CheckIcon color="success" fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Staff location assignment RBAC enforced"
+                    primaryTypographyProps={{ variant: 'body2' }}
+                  />
+                </ListItem>
+                <ListItem disableGutters>
+                  <ListItemIcon sx={{ minWidth: 32 }}>
+                    <CheckIcon color="success" fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Auto re-triggers low stock alerts"
+                    primaryTypographyProps={{ variant: 'body2' }}
+                  />
+                </ListItem>
+              </List>
+            </CardContent>
+
+            <Divider />
+
+            <CardActions sx={{ p: 2.5, gap: 1.5, flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<ImportIcon />}
+                onClick={() => setReceiptsImportDialogOpen(true)}
+              >
+                Import Receipts
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+
+        {/* 3. Stock Position Export Card */}
+        <Grid item xs={12} lg={4}>
           <Card
             sx={{
               height: '100%',
@@ -243,36 +335,6 @@ export const ImportExportPage: React.FC = () => {
                 Download a real-time CSV snapshot containing item metadata, reorder thresholds, derived total on-hand
                 balances, and exact breakdown across all warehouse locations.
               </Typography>
-
-              <List dense disablePadding>
-                <ListItem disableGutters>
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <CheckIcon color="success" fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Complete multi-location breakdown columns"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
-                </ListItem>
-                <ListItem disableGutters>
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <CheckIcon color="success" fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Highlights below-reorder indicators"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
-                </ListItem>
-                <ListItem disableGutters>
-                  <ListItemIcon sx={{ minWidth: 32 }}>
-                    <CheckIcon color="success" fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Includes active and archived catalog items"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
-                </ListItem>
-              </List>
             </CardContent>
 
             <Divider />
@@ -281,60 +343,62 @@ export const ImportExportPage: React.FC = () => {
               <Button
                 variant="contained"
                 color="secondary"
-                startIcon={exporting ? <CircularProgress size={18} color="inherit" /> : <ExportIcon />}
-                disabled={exporting}
+                startIcon={exporting ? <CircularProgress size={16} color="inherit" /> : <ExportIcon />}
                 onClick={handleExport}
+                disabled={exporting}
               >
-                {exporting ? 'Generating Report...' : 'Download Stock Position CSV'}
+                {exporting ? 'Generating CSV...' : 'Export Stock Position'}
               </Button>
             </CardActions>
           </Card>
         </Grid>
       </Grid>
 
-      {/* CSV Schema Reference Table */}
-      <Card sx={{ p: 3, borderRadius: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <HelpIcon color="primary" fontSize="small" />
+      {/* Specification Reference Table */}
+      <Card sx={{ borderRadius: 3, mb: 4 }}>
+        <Box sx={{ p: 3, pb: 1 }}>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            CSV Import Column Specification
+            CSV Schema & Column Reference
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Follow this specification when preparing CSV import files. Headers must match exactly.
           </Typography>
         </Box>
 
-        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+        <TableContainer component={Paper} elevation={0}>
           <Table size="small">
-            <TableHead>
+            <TableHead sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.04) }}>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Column Name</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Required</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Description & Invariant Rules</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Column Header</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Requirement</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Data Type</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Description / Rules</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               <TableRow>
                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 600 }}>sku</TableCell>
-                <TableCell><Chip label="Required" size="small" color="error" variant="outlined" /></TableCell>
-                <TableCell>String</TableCell>
-                <TableCell>Unique product SKU. Cannot duplicate existing items or rows within the same batch.</TableCell>
+                <TableCell><Chip label="Required" size="small" color="primary" /></TableCell>
+                <TableCell>String (Alphanumeric)</TableCell>
+                <TableCell>Unique inventory SKU. Trimmed and capitalized automatically.</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 600 }}>name</TableCell>
-                <TableCell><Chip label="Required" size="small" color="error" variant="outlined" /></TableCell>
+                <TableCell><Chip label="Required" size="small" color="primary" /></TableCell>
                 <TableCell>String</TableCell>
-                <TableCell>Item display title (cannot be empty).</TableCell>
+                <TableCell>Item display name.</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 600 }}>unit_of_measure</TableCell>
-                <TableCell><Chip label="Required" size="small" color="error" variant="outlined" /></TableCell>
+                <TableCell><Chip label="Required" size="small" color="primary" /></TableCell>
                 <TableCell>String</TableCell>
-                <TableCell>e.g. pcs, box, kg, liters, pack.</TableCell>
+                <TableCell>Measurement unit (e.g. pcs, kg, box, pack, meters).</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 600 }}>reorder_level</TableCell>
-                <TableCell><Chip label="Required" size="small" color="error" variant="outlined" /></TableCell>
+                <TableCell><Chip label="Required" size="small" color="primary" /></TableCell>
                 <TableCell>Integer (≥ 0)</TableCell>
-                <TableCell>Minimum inventory threshold before triggering low-stock alerts.</TableCell>
+                <TableCell>Minimum inventory threshold before triggering low-stock alert.</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 600 }}>category</TableCell>
@@ -365,11 +429,20 @@ export const ImportExportPage: React.FC = () => {
         </TableContainer>
       </Card>
 
-      {/* CSV Import Dialog */}
+      {/* CSV Import Dialog for Products */}
       <CsvImportDialog
         open={importDialogOpen}
+        mode="items"
         onClose={() => setImportDialogOpen(false)}
         onSuccess={() => setSuccessMsg('Products imported successfully into inventory!')}
+      />
+
+      {/* CSV Import Dialog for Receipts */}
+      <CsvImportDialog
+        open={receiptsImportDialogOpen}
+        mode="receipts"
+        onClose={() => setReceiptsImportDialogOpen(false)}
+        onSuccess={() => setSuccessMsg('Stock receipts recorded successfully via bulk CSV!')}
       />
     </Box>
   );

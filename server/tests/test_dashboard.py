@@ -33,14 +33,19 @@ def test_get_dashboard_stats_success(client: TestClient, staff_headers: dict):
     assert "recent_movements" in data
     assert isinstance(data["recent_movements"], list)
 
-    assert "movement_trends" in data
-    assert len(data["movement_trends"]) == 14
-    for day in data["movement_trends"]:
-        assert "date" in day
-        assert "receipts" in day
-        assert "issues" in day
-        assert "transfers" in day
-        assert "adjustments" in day
+    assert "movements_today" in data
+    assert "distinct_items_moved_this_week" in data
+    assert data["movements_today"] >= 0
+    assert data["distinct_items_moved_this_week"] >= 0
+
+    assert "weekly_movement_trends" in data
+    assert len(data["weekly_movement_trends"]) == 8
+    for wk in data["weekly_movement_trends"]:
+        assert "week_label" in wk
+        assert "receipts" in wk
+        assert "issues" in wk
+        assert wk["receipts"] >= 0
+        assert wk["issues"] >= 0
 
 
 def test_get_dashboard_stats_unauthorized(client: TestClient):
