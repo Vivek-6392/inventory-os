@@ -43,8 +43,8 @@ Welcome to **InventoryOS**! The application comes pre-configured with a seed scr
 
 | Role | Email | Password | Permissions & Location Assignments |
 |---|---|---|---|
-| **Manager** | `admin@example.com` | `Pass123!` | Full unrestricted access: create/edit items, manage categories & locations, assign staff to locations, dismiss low-stock alerts, bulk CSV imports. |
-| **Staff Member** | `staff@example.com` | `Pass123!` | Operational access: record receipts, issues, and transfers strictly for their assigned locations (`Main Warehouse`, `Retail Floor A`). Blocked from unassigned locations. Cannot archive items or dismiss alerts. |
+| **Manager** | `manager@invstock.com` | `manager123` | Full unrestricted access: create/edit items, manage categories & locations, assign staff to locations, dismiss low-stock alerts, bulk CSV imports. |
+| **Staff Member** | `staff1@invstock.com` | `staff123` | Operational access: record receipts, issues, and transfers strictly for their assigned locations (`Main Warehouse`, `Retail Floor A`). Blocked from unassigned locations. Cannot archive items or dismiss alerts. |
 
 ---
 
