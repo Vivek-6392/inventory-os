@@ -192,58 +192,6 @@ const LoginPage: React.FC = () => {
               {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
             </Button>
           </form>
-
-          {/* Quick Demo Credentials for Reviewers */}
-          <Box
-            sx={{
-              mt: 3,
-              pt: 2.5,
-              borderTop: `1px dashed ${theme.palette.divider}`,
-              textAlign: 'center',
-            }}
-          >
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5, fontWeight: 600 }}>
-              QUICK DEMO SIGN-IN
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1.5 }}>
-              <Button
-                fullWidth
-                variant="outlined"
-                size="small"
-                onClick={() => {
-                  setEmail('admin@example.com');
-                  setPassword('Pass123!');
-                  setError('');
-                }}
-                sx={{
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '0.8rem',
-                  borderColor: alpha(theme.palette.primary.main, 0.4),
-                }}
-              >
-                👑 Manager
-              </Button>
-              <Button
-                fullWidth
-                variant="outlined"
-                size="small"
-                onClick={() => {
-                  setEmail('staff@example.com');
-                  setPassword('Pass123!');
-                  setError('');
-                }}
-                sx={{
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '0.8rem',
-                  borderColor: alpha(theme.palette.secondary.main, 0.4),
-                }}
-              >
-                👷 Staff
-              </Button>
-            </Box>
-          </Box>
         </CardContent>
       </Card>
     </Box>
