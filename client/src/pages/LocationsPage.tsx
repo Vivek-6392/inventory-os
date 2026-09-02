@@ -28,6 +28,7 @@ import type { Location } from '../types';
 import { getLocations, deleteLocation } from '../services/locations';
 import { useAuth } from '../contexts/AuthContext';
 import { LocationDialog } from '../components/LocationDialog';
+import { formatDateIST } from '../utils/date';
 import { AssignStaffDialog } from '../components/AssignStaffDialog';
 
 export const LocationsPage: React.FC = () => {
@@ -186,7 +187,7 @@ export const LocationsPage: React.FC = () => {
                           {loc.name}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          Added {new Date(loc.created_at).toLocaleDateString()}
+                          Added {formatDateIST(loc.created_at)}
                         </Typography>
                       </Box>
                     </Box>

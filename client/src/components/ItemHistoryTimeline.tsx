@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import type { ItemHistory } from '../types';
 import { getItemHistory, addItemNote } from '../services/history';
+import { formatDateTimeIST } from '../utils/date';
 
 interface ItemHistoryTimelineProps {
   itemId: string;
@@ -247,7 +248,7 @@ export const ItemHistoryTimeline: React.FC<ItemHistoryTimelineProps> = ({ itemId
                   </Stack>
 
                   <Typography variant="caption" color="text.secondary">
-                    {new Date(record.created_at).toLocaleString()}
+                    {formatDateTimeIST(record.created_at)} IST
                   </Typography>
                 </Stack>
 

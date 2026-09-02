@@ -12,9 +12,8 @@ import {
   ListItemIcon,
   ListItemText,
   IconButton,
+  Button,
   Avatar,
-  Menu,
-  MenuItem,
   Divider,
   Badge,
   Tooltip,
@@ -31,7 +30,6 @@ import {
   Warning as AlertIcon,
   Logout as LogoutIcon,
   Menu as MenuIcon,
-  Person as PersonIcon,
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
 } from '@mui/icons-material';
@@ -64,7 +62,6 @@ const Layout: React.FC = () => {
   const { user, logout, isManager } = useAuth();
   const { mode, toggleColorMode } = useColorMode();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [alertCount, setAlertCount] = useState(0);
 
   useEffect(() => {
@@ -82,10 +79,7 @@ const Layout: React.FC = () => {
   }, []);
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
-  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
   const handleLogout = () => {
-    handleMenuClose();
     logout();
     navigate('/login');
   };
@@ -225,36 +219,99 @@ const Layout: React.FC = () => {
         </ListItem>
       </List>
 
-      {/* User info at bottom */}
-      <Box sx={{ p: 2 }}>
+      {/* User info, Mode Toggle & Logout at bottom left */}
+      <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
+            flexDirection: 'column',
             gap: 1.5,
             p: 1.5,
-            borderRadius: 2,
-            backgroundColor: alpha(theme.palette.primary.main, 0.06),
+            borderRadius: 2.5,
+            backgroundColor: alpha(theme.palette.primary.main, mode === 'dark' ? 0.08 : 0.04),
+            border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
           }}
         >
-          <Avatar
-            sx={{
-              width: 34,
-              height: 34,
-              bgcolor: theme.palette.primary.main,
-              fontSize: '0.85rem',
-              fontWeight: 600,
-            }}
-          >
-            {user?.name?.charAt(0)?.toUpperCase() || '?'}
-          </Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', lineHeight: 1.2 }} noWrap>
-              {user?.name}
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>
-              {user?.role}
-            </Typography>
+          {/* User Profile Info */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+            <Avatar
+              sx={{
+                width: 38,
+                height: 38,
+                bgcolor: theme.palette.primary.main,
+                fontSize: '0.9rem',
+                fontWeight: 700,
+              }}
+            >
+              {user?.name?.charAt(0)?.toUpperCase() || '?'}
+            </Avatar>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary', lineHeight: 1.2 }} noWrap>
+                {user?.name}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.72rem', display: 'block' }} noWrap>
+                {user?.role} • {user?.email}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 0.2, opacity: 0.6 }} />
+
+          {/* Both Mode Option and Logout placed directly below Username */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+            {/* Theme Mode Toggle */}
+            <Button
+              fullWidth
+              size="small"
+              onClick={toggleColorMode}
+              startIcon={
+                mode === 'dark' ? (
+                  <LightModeIcon sx={{ color: '#FFB74D', fontSize: 17 }} />
+                ) : (
+                  <DarkModeIcon sx={{ color: theme.palette.primary.main, fontSize: 17 }} />
+                )
+              }
+              sx={{
+                py: 0.6,
+                px: 1,
+                borderRadius: 2,
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                textTransform: 'none',
+                color: 'text.primary',
+                backgroundColor: alpha(theme.palette.primary.main, mode === 'dark' ? 0.1 : 0.06),
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, mode === 'dark' ? 0.18 : 0.12),
+                },
+              }}
+            >
+              {mode === 'dark' ? 'Light' : 'Dark'}
+            </Button>
+
+            {/* Logout Button */}
+            <Button
+              fullWidth
+              size="small"
+              onClick={handleLogout}
+              startIcon={<LogoutIcon sx={{ fontSize: 16 }} />}
+              sx={{
+                py: 0.6,
+                px: 1,
+                borderRadius: 2,
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                textTransform: 'none',
+                color: theme.palette.error.main,
+                backgroundColor: alpha(theme.palette.error.main, 0.06),
+                border: `1px solid ${alpha(theme.palette.error.main, 0.15)}`,
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.error.main, 0.14),
+                },
+              }}
+            >
+              Logout
+            </Button>
           </Box>
         </Box>
       </Box>
@@ -304,88 +361,29 @@ const Layout: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-        {/* Top bar */}
+        {/* Top bar (only displayed on mobile for drawer toggle) */}
         <AppBar
           position="sticky"
           elevation={0}
           sx={{
+            display: { xs: 'block', md: 'none' },
             bgcolor: alpha(theme.palette.background.default, 0.85),
             color: 'text.primary',
             backdropFilter: 'blur(20px)',
             borderBottom: `1px solid ${theme.palette.divider}`,
           }}
         >
-          <Toolbar>
+          <Toolbar sx={{ minHeight: 56 }}>
             <IconButton
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { md: 'none' }, color: 'text.primary' }}
+              sx={{ mr: 2, color: 'text.primary' }}
             >
               <MenuIcon />
             </IconButton>
-            <Box sx={{ flex: 1 }} />
-
-            {/* Light / Dark Mode Toggle */}
-            <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
-              <IconButton
-                onClick={toggleColorMode}
-                sx={{
-                  mr: 1.5,
-                  width: 38,
-                  height: 38,
-                  borderRadius: 2.5,
-                  backgroundColor: alpha(theme.palette.primary.main, mode === 'dark' ? 0.12 : 0.08),
-                  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    backgroundColor: alpha(theme.palette.primary.main, mode === 'dark' ? 0.2 : 0.15),
-                    transform: 'scale(1.05)',
-                  },
-                }}
-              >
-                {mode === 'dark' ? (
-                  <LightModeIcon sx={{ color: '#FFB74D', fontSize: 20 }} />
-                ) : (
-                  <DarkModeIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
-                )}
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Account">
-              <IconButton onClick={handleMenuOpen} sx={{ ml: 1 }}>
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: theme.palette.primary.main,
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                  }}
-                >
-                  {user?.name?.charAt(0)?.toUpperCase() || '?'}
-                </Avatar>
-              </IconButton>
-            </Tooltip>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-            >
-              <MenuItem disabled>
-                <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
-                <ListItemText>
-                  <Typography variant="body2">{user?.email}</Typography>
-                  <Typography variant="caption" color="text.secondary">{user?.role}</Typography>
-                </ListItemText>
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleLogout}>
-                <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
-                <ListItemText>Logout</ListItemText>
-              </MenuItem>
-            </Menu>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+              InvStock
+            </Typography>
           </Toolbar>
         </AppBar>
 

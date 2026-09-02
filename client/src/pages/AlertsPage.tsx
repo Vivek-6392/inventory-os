@@ -45,6 +45,7 @@ import {
   type AlertItem,
 } from '../services/alerts';
 import { useAuth } from '../contexts/AuthContext';
+import { formatDateTimeIST } from '../utils/date';
 
 export const AlertsPage: React.FC = () => {
   const theme = useTheme();
@@ -436,7 +437,7 @@ export const AlertsPage: React.FC = () => {
                           <TableCell>
                             <Typography variant="caption" color="text.secondary">
                               {alert.dismissed_at
-                                ? new Date(alert.dismissed_at).toLocaleString()
+                                ? `${formatDateTimeIST(alert.dismissed_at)} IST`
                                 : '—'}
                             </Typography>
                           </TableCell>

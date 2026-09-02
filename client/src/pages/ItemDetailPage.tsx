@@ -39,6 +39,7 @@ import { ItemDialog } from '../components/ItemDialog';
 import { MovementsTable } from '../components/MovementsTable';
 import { RecordMovementDialog } from '../components/RecordMovementDialog';
 import { ItemHistoryTimeline } from '../components/ItemHistoryTimeline';
+import { formatDateIST } from '../utils/date';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -180,7 +181,7 @@ export const ItemDetailPage: React.FC = () => {
               )}
             </Stack>
             <Typography variant="caption" color="text.secondary">
-              Added on {new Date(item.created_at).toLocaleDateString()}
+              Added on {formatDateIST(item.created_at)}
             </Typography>
           </Box>
         </Stack>

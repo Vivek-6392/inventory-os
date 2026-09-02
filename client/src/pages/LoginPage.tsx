@@ -64,8 +64,8 @@ const LoginPage: React.FC = () => {
         p: 2,
       }}
     >
-      {/* Floating Theme Toggle */}
-      <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
+      {/* Floating Theme Toggle (Bottom Left) */}
+      <Box sx={{ position: 'absolute', bottom: 24, left: 24 }}>
         <IconButton
           onClick={toggleColorMode}
           sx={{

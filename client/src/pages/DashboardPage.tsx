@@ -57,6 +57,7 @@ import {
 } from 'recharts';
 import { getDashboardStats, type DashboardStats } from '../services/dashboard';
 import { useAuth } from '../contexts/AuthContext';
+import { formatDateTimeIST } from '../utils/date';
 
 const PIE_COLORS = ['#6C63FF', '#00D9A6', '#FFB74D', '#FF5252', '#33E0B8', '#8B83FF', '#FF9800', '#9C27B0'];
 
@@ -245,7 +246,7 @@ export const DashboardPage: React.FC = () => {
                   {stats.movements_today}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Logged since 00:00 UTC
+                  Logged since 00:00 IST
                 </Typography>
               </Box>
               <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.2), color: 'info.main', width: 40, height: 40 }}>
@@ -726,7 +727,7 @@ export const DashboardPage: React.FC = () => {
                     </TableCell>
                     <TableCell align="right">
                       <Typography variant="caption" color="text.secondary">
-                        {new Date(m.created_at).toLocaleDateString()} {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {formatDateTimeIST(m.created_at)} IST
                       </Typography>
                     </TableCell>
                   </TableRow>

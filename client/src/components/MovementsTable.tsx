@@ -22,6 +22,7 @@ import {
   InfoOutlined as InfoIcon,
 } from '@mui/icons-material';
 import { MovementKind, type StockMovement } from '../types';
+import { formatDateIST, formatTimeIST } from '../utils/date';
 
 interface MovementsTableProps {
   movements: StockMovement[];
@@ -157,17 +158,10 @@ export const MovementsTable: React.FC<MovementsTableProps> = ({
               {/* Date & Time */}
               <TableCell sx={{ whiteSpace: 'nowrap' }}>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {new Date(mv.created_at).toLocaleDateString(undefined, {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
+                  {formatDateIST(mv.created_at)}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {new Date(mv.created_at).toLocaleTimeString(undefined, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  {formatTimeIST(mv.created_at)} IST
                 </Typography>
               </TableCell>
 

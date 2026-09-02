@@ -175,12 +175,16 @@ def get_dashboard_stats(
             )
         )
 
-    # 4. Movements today and distinct items moved this week (Goal 8)
-    now = datetime.now(timezone.utc)
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    movements_today = db.query(StockMovement).filter(StockMovement.created_at >= today_start).count()
+    # 4. Movements today and distinct items moved this week (Indian Standard Time: UTC+05:30)
+    ist = timezone(timedelta(hours=5, minutes=30), name="IST")
+    now_utc = datetime.now(timezone.utc)
+    now_ist = now_utc.astimezone(ist)
+    today_start_ist = now_ist.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start_utc = today_start_ist.astimezone(timezone.utc)
 
-    seven_days_ago = now - timedelta(days=7)
+    movements_today = db.query(StockMovement).filter(StockMovement.created_at >= today_start_utc).count()
+
+    seven_days_ago = now_utc - timedelta(days=7)
     distinct_items_moved_this_week = (
         db.query(StockMovement.item_id)
         .filter(StockMovement.created_at >= seven_days_ago)
@@ -188,10 +192,10 @@ def get_dashboard_stats(
         .count()
     )
 
-    # 5. 14-day daily movement volume trends
+    # 5. 14-day daily movement volume trends (in IST)
     daily_trends_map = {}
     for i in range(13, -1, -1):
-        day_date = (now - timedelta(days=i)).strftime("%Y-%m-%d")
+        day_date = (now_ist - timedelta(days=i)).strftime("%Y-%m-%d")
         daily_trends_map[day_date] = {
             "receipts": 0,
             "issues": 0,
@@ -199,14 +203,15 @@ def get_dashboard_stats(
             "adjustments": 0,
         }
 
-    fourteen_days_ago = now - timedelta(days=14)
+    fourteen_days_ago_utc = now_utc - timedelta(days=14)
     trend_movements = (
         db.query(StockMovement)
-        .filter(StockMovement.created_at >= fourteen_days_ago)
+        .filter(StockMovement.created_at >= fourteen_days_ago_utc)
         .all()
     )
     for tm in trend_movements:
-        d_str = tm.created_at.strftime("%Y-%m-%d")
+        tm_dt = tm.created_at if tm.created_at.tzinfo else tm.created_at.replace(tzinfo=timezone.utc)
+        d_str = tm_dt.astimezone(ist).strftime("%Y-%m-%d")
         if d_str in daily_trends_map:
             if tm.kind == MovementKind.RECEIPT:
                 daily_trends_map[d_str]["receipts"] += tm.quantity
@@ -228,22 +233,24 @@ def get_dashboard_stats(
         for d, counts in daily_trends_map.items()
     ]
 
-    # 6. 8-Week Receipt and Issue Volume Trends (Goal 8 specification)
-    eight_weeks_ago = now - timedelta(weeks=8)
+    # 6. 8-Week Receipt and Issue Volume Trends (Goal 8 specification in IST)
+    eight_weeks_ago_utc = now_utc - timedelta(weeks=8)
     eight_weeks_movements = (
         db.query(StockMovement)
-        .filter(StockMovement.created_at >= eight_weeks_ago)
+        .filter(StockMovement.created_at >= eight_weeks_ago_utc)
         .all()
     )
     weekly_movement_trends = []
     for w in range(7, -1, -1):
-        w_start = now - timedelta(weeks=w + 1)
-        w_end = now - timedelta(weeks=w)
+        w_start = now_ist - timedelta(weeks=w + 1)
+        w_end = now_ist - timedelta(weeks=w)
         label = f"Wk {8 - w} ({w_start.strftime('%b %d')})"
         w_receipts = 0
         w_issues = 0
         for m in eight_weeks_movements:
-            if w_start <= m.created_at < w_end:
+            m_dt = m.created_at if m.created_at.tzinfo else m.created_at.replace(tzinfo=timezone.utc)
+            m_ist = m_dt.astimezone(ist)
+            if w_start <= m_ist < w_end:
                 if m.kind == MovementKind.RECEIPT:
                     w_receipts += m.quantity
                 elif m.kind == MovementKind.ISSUE:
