@@ -219,13 +219,47 @@ const Layout: React.FC = () => {
         </ListItem>
       </List>
 
+      {/* Real-time System Status Indicator */}
+      <Box sx={{ px: 2, pt: 1, pb: 0.5 }}>
+        <Box
+          sx={{
+            py: 0.8,
+            px: 1.2,
+            borderRadius: 2,
+            backgroundColor: alpha(theme.palette.success.main, 0.06),
+            border: `1px solid ${alpha(theme.palette.success.main, 0.18)}`,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
+          <Box
+            sx={{
+              width: 7,
+              height: 7,
+              borderRadius: '50%',
+              bgcolor: 'success.main',
+              boxShadow: `0 0 6px ${theme.palette.success.main}`,
+            }}
+          />
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary', display: 'block', fontSize: '0.7rem', lineHeight: 1.1 }}>
+              Ledger Live • IST
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem', display: 'block' }}>
+              Multi-Warehouse Active
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
       {/* User info, Mode Toggle & Logout at bottom left */}
       <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
         <Box
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 1.5,
+            gap: 1.2,
             p: 1.5,
             borderRadius: 2.5,
             backgroundColor: alpha(theme.palette.primary.main, mode === 'dark' ? 0.08 : 0.04),
@@ -249,8 +283,11 @@ const Layout: React.FC = () => {
               <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary', lineHeight: 1.2 }} noWrap>
                 {user?.name}
               </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.72rem', display: 'block' }} noWrap>
-                {user?.role} • {user?.email}
+              <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 700, fontSize: '0.68rem', display: 'block', textTransform: 'uppercase' }}>
+                {user?.role}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.68rem', display: 'block' }} noWrap title={user?.email}>
+                {user?.email}
               </Typography>
             </Box>
           </Box>

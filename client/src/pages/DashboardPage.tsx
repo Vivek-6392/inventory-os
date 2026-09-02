@@ -157,207 +157,208 @@ export const DashboardPage: React.FC = () => {
       </Box>
 
       {/* KPI Cards Row (Goal 8 Headline Numbers) */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+      {/* KPI Cards Row (Goal 8 Headline Numbers) */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)',
+            xl: 'repeat(6, 1fr)',
+          },
+          gap: 2,
+          mb: 3,
+        }}
+      >
         {/* Total Stock Units */}
-        <Grid item xs={12} sm={6} md={4} lg={2}>
-          <Card
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              height: '100%',
-              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
-              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-            }}
-          >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Total Units
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
-                  {stats.total_stock_units.toLocaleString()}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Across {stats.total_locations} locations
-                </Typography>
-              </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2), color: 'primary.main', width: 40, height: 40 }}>
-                <TrendingUpIcon fontSize="small" />
-              </Avatar>
+        <Card
+          sx={{
+            p: 2,
+            borderRadius: 3,
+            height: '100%',
+            background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
+            border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                Total Units
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
+                {stats.total_stock_units.toLocaleString()}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Across {stats.total_locations} locations
+              </Typography>
             </Box>
-          </Card>
-        </Grid>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2), color: 'primary.main', width: 40, height: 40 }}>
+              <TrendingUpIcon fontSize="small" />
+            </Avatar>
+          </Box>
+        </Card>
 
         {/* Low Stock Alerts */}
-        <Grid item xs={12} sm={6} md={4} lg={2}>
-          <Card
-            onClick={() => navigate('/alerts')}
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              height: '100%',
-              cursor: 'pointer',
-              background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, stats.low_stock_count > 0 ? 0.15 : 0.05)} 0%, ${theme.palette.background.paper} 100%)`,
-              border: `1px solid ${alpha(theme.palette.warning.main, stats.low_stock_count > 0 ? 0.3 : 0.1)}`,
-              transition: 'transform 0.2s ease',
-              '&:hover': { transform: 'translateY(-2px)' },
-            }}
-          >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Low Stock
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: stats.low_stock_count > 0 ? 'warning.main' : 'text.primary' }}>
-                  {stats.low_stock_count}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {stats.low_stock_count > 0 ? 'At or below reorder' : 'All levels healthy'}
-                </Typography>
-              </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.2), color: 'warning.main', width: 40, height: 40 }}>
-                <WarningIcon fontSize="small" />
-              </Avatar>
+        <Card
+          onClick={() => navigate('/alerts')}
+          sx={{
+            p: 2,
+            borderRadius: 3,
+            height: '100%',
+            cursor: 'pointer',
+            background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, stats.low_stock_count > 0 ? 0.15 : 0.05)} 0%, ${theme.palette.background.paper} 100%)`,
+            border: `1px solid ${alpha(theme.palette.warning.main, stats.low_stock_count > 0 ? 0.3 : 0.1)}`,
+            transition: 'transform 0.2s ease',
+            '&:hover': { transform: 'translateY(-2px)' },
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                Low Stock
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: stats.low_stock_count > 0 ? 'warning.main' : 'text.primary' }}>
+                {stats.low_stock_count}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {stats.low_stock_count > 0 ? 'At or below reorder' : 'All levels healthy'}
+              </Typography>
             </Box>
-          </Card>
-        </Grid>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.2), color: 'warning.main', width: 40, height: 40 }}>
+              <WarningIcon fontSize="small" />
+            </Avatar>
+          </Box>
+        </Card>
 
         {/* Movements Recorded Today (Goal 8 Headline) */}
-        <Grid item xs={12} sm={6} md={4} lg={2}>
-          <Card
-            onClick={() => navigate('/movements')}
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              height: '100%',
-              cursor: 'pointer',
-              background: `linear-gradient(135deg, ${alpha(theme.palette.info.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
-              border: `1px solid ${alpha(theme.palette.info.main, 0.2)}`,
-              transition: 'transform 0.2s ease',
-              '&:hover': { transform: 'translateY(-2px)' },
-            }}
-          >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Movements Today
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
-                  {stats.movements_today}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Logged since 00:00 IST
-                </Typography>
-              </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.2), color: 'info.main', width: 40, height: 40 }}>
-                <TodayIcon fontSize="small" />
-              </Avatar>
+        <Card
+          onClick={() => navigate('/movements')}
+          sx={{
+            p: 2,
+            borderRadius: 3,
+            height: '100%',
+            cursor: 'pointer',
+            background: `linear-gradient(135deg, ${alpha(theme.palette.info.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
+            border: `1px solid ${alpha(theme.palette.info.main, 0.2)}`,
+            transition: 'transform 0.2s ease',
+            '&:hover': { transform: 'translateY(-2px)' },
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                Movements Today
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
+                {stats.movements_today}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Logged since 00:00 IST
+              </Typography>
             </Box>
-          </Card>
-        </Grid>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.2), color: 'info.main', width: 40, height: 40 }}>
+              <TodayIcon fontSize="small" />
+            </Avatar>
+          </Box>
+        </Card>
 
         {/* Items Moved This Week (Goal 8 Headline) */}
-        <Grid item xs={12} sm={6} md={4} lg={2}>
-          <Card
-            onClick={() => navigate('/movements')}
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              height: '100%',
-              cursor: 'pointer',
-              background: `linear-gradient(135deg, ${alpha(theme.palette.success.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
-              border: `1px solid ${alpha(theme.palette.success.main, 0.2)}`,
-              transition: 'transform 0.2s ease',
-              '&:hover': { transform: 'translateY(-2px)' },
-            }}
-          >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Moved This Week
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
-                  {stats.distinct_items_moved_this_week}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Distinct items in 7 days
-                </Typography>
-              </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), color: 'success.main', width: 40, height: 40 }}>
-                <DateRangeIcon fontSize="small" />
-              </Avatar>
+        <Card
+          onClick={() => navigate('/movements')}
+          sx={{
+            p: 2,
+            borderRadius: 3,
+            height: '100%',
+            cursor: 'pointer',
+            background: `linear-gradient(135deg, ${alpha(theme.palette.success.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
+            border: `1px solid ${alpha(theme.palette.success.main, 0.2)}`,
+            transition: 'transform 0.2s ease',
+            '&:hover': { transform: 'translateY(-2px)' },
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                Moved This Week
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
+                {stats.distinct_items_moved_this_week}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Distinct items in 7 days
+              </Typography>
             </Box>
-          </Card>
-        </Grid>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), color: 'success.main', width: 40, height: 40 }}>
+              <DateRangeIcon fontSize="small" />
+            </Avatar>
+          </Box>
+        </Card>
 
         {/* Active Catalog Items */}
-        <Grid item xs={12} sm={6} md={4} lg={2}>
-          <Card
-            onClick={() => navigate('/items')}
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              height: '100%',
-              cursor: 'pointer',
-              background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
-              border: `1px solid ${alpha(theme.palette.secondary.main, 0.2)}`,
-              transition: 'transform 0.2s ease',
-              '&:hover': { transform: 'translateY(-2px)' },
-            }}
-          >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Catalog Items
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
-                  {stats.total_items}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {stats.archived_items} archived
-                </Typography>
-              </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.2), color: 'secondary.main', width: 40, height: 40 }}>
-                <InventoryIcon fontSize="small" />
-              </Avatar>
+        <Card
+          onClick={() => navigate('/items')}
+          sx={{
+            p: 2,
+            borderRadius: 3,
+            height: '100%',
+            cursor: 'pointer',
+            background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.12)} 0%, ${theme.palette.background.paper} 100%)`,
+            border: `1px solid ${alpha(theme.palette.secondary.main, 0.2)}`,
+            transition: 'transform 0.2s ease',
+            '&:hover': { transform: 'translateY(-2px)' },
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                Catalog Items
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
+                {stats.total_items}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {stats.archived_items} archived
+              </Typography>
             </Box>
-          </Card>
-        </Grid>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.2), color: 'secondary.main', width: 40, height: 40 }}>
+              <InventoryIcon fontSize="small" />
+            </Avatar>
+          </Box>
+        </Card>
 
         {/* Ledger Transactions */}
-        <Grid item xs={12} sm={6} md={4} lg={2}>
-          <Card
-            onClick={() => navigate('/movements')}
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              height: '100%',
-              cursor: 'pointer',
-              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${theme.palette.background.paper} 100%)`,
-              border: `1px solid ${alpha(theme.palette.divider, 0.8)}`,
-              transition: 'transform 0.2s ease',
-              '&:hover': { transform: 'translateY(-2px)' },
-            }}
-          >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
-                  Total Ledger
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
-                  {stats.total_movements}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Append-only records
-                </Typography>
-              </Box>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.text.primary, 0.1), color: 'text.primary', width: 40, height: 40 }}>
-                <MovementsIcon fontSize="small" />
-              </Avatar>
+        <Card
+          onClick={() => navigate('/movements')}
+          sx={{
+            p: 2,
+            borderRadius: 3,
+            height: '100%',
+            cursor: 'pointer',
+            background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${theme.palette.background.paper} 100%)`,
+            border: `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+            transition: 'transform 0.2s ease',
+            '&:hover': { transform: 'translateY(-2px)' },
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                Total Ledger
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: 'text.primary' }}>
+                {stats.total_movements}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Append-only records
+              </Typography>
             </Box>
-          </Card>
-        </Grid>
-      </Grid>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.text.primary, 0.1), color: 'text.primary', width: 40, height: 40 }}>
+              <MovementsIcon fontSize="small" />
+            </Avatar>
+          </Box>
+        </Card>
+      </Box>
 
       {/* Visual Analytics Row */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
@@ -367,11 +368,11 @@ export const DashboardPage: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  {trendMode === 'weekly' ? '8-Week Receipt & Issue Volume' : '14-Day Movement Trends'}
+                  {trendMode === 'weekly' ? '8-Week Movement Volume Trends' : '14-Day Movement Trends'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {trendMode === 'weekly'
-                    ? 'Weekly totals for incoming Receipts vs outgoing Issues over the last 8 weeks'
+                    ? 'Weekly aggregate totals for Receipts, Issues, and Transfers over the last 8 weeks'
                     : 'Daily aggregate quantities for Receipts, Issues, Transfers, and Adjustments'}
                 </Typography>
               </Box>
@@ -413,6 +414,7 @@ export const DashboardPage: React.FC = () => {
                     <Legend />
                     <Bar dataKey="receipts" name="Receipts (Incoming)" fill="#00D9A6" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="issues" name="Issues (Outgoing)" fill="#FF5252" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="transfers" name="Transfers" fill="#6C63FF" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 ) : (
                   <AreaChart data={stats.movement_trends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>

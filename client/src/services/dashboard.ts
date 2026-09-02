@@ -51,6 +51,8 @@ export interface MovementTrendWeek {
   week_label: string;
   receipts: number;
   issues: number;
+  transfers: number;
+  adjustments: number;
 }
 
 export interface DashboardStats {

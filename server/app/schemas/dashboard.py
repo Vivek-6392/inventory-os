@@ -55,6 +55,8 @@ class MovementTrendWeek(BaseModel):
     week_label: str
     receipts: int
     issues: int
+    transfers: int = 0
+    adjustments: int = 0
 
 
 class DashboardStatsOut(BaseModel):

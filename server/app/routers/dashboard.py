@@ -247,6 +247,8 @@ def get_dashboard_stats(
         label = f"Wk {8 - w} ({w_start.strftime('%b %d')})"
         w_receipts = 0
         w_issues = 0
+        w_transfers = 0
+        w_adjustments = 0
         for m in eight_weeks_movements:
             m_dt = m.created_at if m.created_at.tzinfo else m.created_at.replace(tzinfo=timezone.utc)
             m_ist = m_dt.astimezone(ist)
@@ -255,11 +257,17 @@ def get_dashboard_stats(
                     w_receipts += m.quantity
                 elif m.kind == MovementKind.ISSUE:
                     w_issues += m.quantity
+                elif m.kind == MovementKind.TRANSFER:
+                    w_transfers += m.quantity
+                elif m.kind == MovementKind.ADJUSTMENT:
+                    w_adjustments += abs(m.quantity)
         weekly_movement_trends.append(
             MovementTrendWeek(
                 week_label=label,
                 receipts=w_receipts,
                 issues=w_issues,
+                transfers=w_transfers,
+                adjustments=w_adjustments,
             )
         )
 
