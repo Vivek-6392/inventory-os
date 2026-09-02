@@ -10,7 +10,7 @@ def check_and_enable_rls():
             FROM pg_tables 
             WHERE schemaname = 'public'
             ORDER BY tablename;
-        """))1
+        """))
         
         tables = result.fetchall()
         print(f"Found {len(tables)} tables in 'public' schema:")

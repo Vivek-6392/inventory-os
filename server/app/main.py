@@ -45,6 +45,17 @@ app.include_router(alerts.router)
 # ---------------------------------------------------------------------------
 
 
+@app.get("/")
+def root():
+    return {
+        "name": "Inventory & Stock Control API",
+        "status": "online",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "health_url": "/api/health",
+    }
+
+
 @app.get("/api/health")
 def health_check():
     return {"status": "healthy"}
