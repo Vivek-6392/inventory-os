@@ -41,10 +41,11 @@ Welcome to **InventoryOS**! The application comes pre-configured with a seed scr
 
 ## Demo Credentials
 
-| Role | Email | Password | Permissions & Location Assignments |
-|---|---|---|---|
-| **Manager** | `manager@invstock.com` | `manager123` | Full unrestricted access: create/edit items, manage categories & locations, assign staff to locations, dismiss low-stock alerts, bulk CSV imports. |
-| **Staff Member** | `staff1@invstock.com` | `staff123` | Operational access: record receipts, issues, and transfers strictly for their assigned locations (`Main Warehouse`, `Retail Floor A`). Blocked from unassigned locations. Cannot archive items or dismiss alerts. |
+| Role | Name | Email | Password | Permissions & Location Assignments |
+|---|---|---|---|---|
+| **Manager** | **Aarav Sharma** | `manager@invstock.com` | `manager123` | Full unrestricted access: create/edit items, manage categories & locations, onboard new staff accounts, assign staff to locations, dismiss low-stock alerts, bulk CSV imports. |
+| **Warehouse Staff 1** | **Rohan Verma** | `staff1@invstock.com` | `staff123` | Operational access: record receipts, issues, and transfers strictly for assigned locations (`Main Warehouse`, `Retail Floor A`, `North Distribution Center`). Blocked from unassigned locations. |
+| **Warehouse Staff 2** | **Ananya Iyer** | `staff2@invstock.com` | `staff123` | Operational access: record receipts, issues, and transfers strictly for assigned locations (`Retail Floor B`, `South Fulfillment Hub`, `West Logistics Depot`). Blocked from unassigned locations. |
 
 ---
 

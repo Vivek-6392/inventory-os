@@ -8,13 +8,20 @@ from app.database import get_db
 from app.models.models import User, Location, UserRole
 from app.schemas.auth import UserOut
 from app.schemas.location import LocationOut
-from app.middleware.auth import require_manager, require_any
+from app.middleware.auth import require_manager, require_any, hash_password
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
 
 class UserLocationAssignment(BaseModel):
     location_ids: List[UUID]
+
+
+class StaffCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+    location_ids: List[UUID] = []
 
 
 class UserWithLocationsOut(BaseModel):
@@ -74,3 +81,45 @@ def assign_user_locations(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.post("", response_model=UserWithLocationsOut, status_code=status.HTTP_201_CREATED)
+def create_staff(
+    payload: StaffCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_manager),
+):
+    """
+    Goal 1: Manager creates a new warehouse staff user account with initial assigned locations.
+    Only role STAFF is permitted.
+    """
+    existing = db.query(User).filter(User.email == payload.email.strip().lower()).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A user with this email already exists",
+        )
+
+    clean_pwd = payload.password.strip()
+    if len(clean_pwd) < 6:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Password must be at least 6 characters long",
+        )
+
+    # Always enforce role as STAFF
+    staff_user = User(
+        email=payload.email.strip().lower(),
+        name=payload.name.strip(),
+        password_hash=hash_password(clean_pwd),
+        role=UserRole.STAFF,
+    )
+
+    if payload.location_ids:
+        locs = db.query(Location).filter(Location.id.in_(payload.location_ids)).all()
+        staff_user.assigned_locations = locs
+
+    db.add(staff_user)
+    db.commit()
+    db.refresh(staff_user)
+    return staff_user

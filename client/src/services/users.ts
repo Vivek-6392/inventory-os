@@ -21,3 +21,15 @@ export const assignUserLocations = async (userId: string, locationIds: string[])
   });
   return res.data;
 };
+
+export interface CreateStaffPayload {
+  name: string;
+  email: string;
+  password: string;
+  location_ids?: string[];
+}
+
+export const createStaffUser = async (payload: CreateStaffPayload): Promise<UserWithLocations> => {
+  const res = await api.post<UserWithLocations>('/users', payload);
+  return res.data;
+};

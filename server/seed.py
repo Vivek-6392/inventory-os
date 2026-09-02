@@ -49,19 +49,19 @@ def seed():
         manager = User(
             email="manager@invstock.com",
             password_hash=hash_password("manager123"),
-            name="Alice Manager",
+            name="Aarav Sharma",
             role=UserRole.MANAGER,
         )
         staff1 = User(
             email="staff1@invstock.com",
             password_hash=hash_password("staff123"),
-            name="Bob Staff",
+            name="Rohan Verma",
             role=UserRole.STAFF,
         )
         staff2 = User(
             email="staff2@invstock.com",
             password_hash=hash_password("staff123"),
-            name="Carol Staff",
+            name="Ananya Iyer",
             role=UserRole.STAFF,
         )
         db.add_all([manager, staff1, staff2])

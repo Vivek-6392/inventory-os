@@ -83,3 +83,52 @@ def test_staff_location_assignment(client, manager_headers, staff_user, db):
     list_res = client.get(f"/api/locations/{loc.id}/staff", headers=manager_headers)
     assert list_res.status_code == 200
     assert len(list_res.json()) == 1
+
+
+def test_manager_create_staff_and_role_enforcement(client, manager_headers, staff_headers, db):
+    loc = Location(name="Creation Test Facility")
+    db.add(loc)
+    db.commit()
+
+    # Manager creates staff user
+    res = client.post(
+        "/api/users",
+        json={
+            "name": "Arjun Kumar",
+            "email": "arjun.kumar@invstock.com",
+            "password": "password123",
+            "location_ids": [str(loc.id)],
+        },
+        headers=manager_headers,
+    )
+    assert res.status_code == 201
+    data = res.json()
+    assert data["name"] == "Arjun Kumar"
+    assert data["email"] == "arjun.kumar@invstock.com"
+    assert data["role"] == "STAFF"
+    assert len(data["assigned_locations"]) == 1
+    assert data["assigned_locations"][0]["id"] == str(loc.id)
+
+    # Duplicate email fails (409 Conflict)
+    dup_res = client.post(
+        "/api/users",
+        json={
+            "name": "Arjun Duplicate",
+            "email": "arjun.kumar@invstock.com",
+            "password": "password123",
+        },
+        headers=manager_headers,
+    )
+    assert dup_res.status_code == 409
+
+    # Staff user cannot create staff (403 Forbidden)
+    staff_res = client.post(
+        "/api/users",
+        json={
+            "name": "Illegal Staff",
+            "email": "illegal@invstock.com",
+            "password": "password123",
+        },
+        headers=staff_headers,
+    )
+    assert staff_res.status_code == 403
