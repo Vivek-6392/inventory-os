@@ -73,14 +73,18 @@ def seed():
         loc_warehouse = Location(name="Main Warehouse", description="Central distribution warehouse")
         loc_retail1 = Location(name="Retail Floor A", description="Downtown retail location")
         loc_retail2 = Location(name="Retail Floor B", description="Mall retail location")
-        db.add_all([loc_warehouse, loc_retail1, loc_retail2])
+        loc_north = Location(name="North Distribution Center", description="Regional bulk storage and dispatch hub (Delhi NCR)")
+        loc_south = Location(name="South Fulfillment Hub", description="High-velocity rapid replenishment depot (Bengaluru)")
+        loc_west = Location(name="West Logistics Depot", description="Container consolidation & maritime import center (Mumbai)")
+        loc_cold = Location(name="Cold Storage Facility", description="Climate-controlled zone for temperature-sensitive items")
+        loc_returns = Location(name="Quarantine & Returns Depot", description="Quality assurance, RMA triage, and return inspection facility")
+        db.add_all([loc_warehouse, loc_retail1, loc_retail2, loc_north, loc_south, loc_west, loc_cold, loc_returns])
         db.flush()
-        print(f"  [+] Created 3 locations")
+        print(f"  [+] Created 8 locations")
 
         # Assign staff to locations
-        staff1.assigned_locations.append(loc_warehouse)
-        staff1.assigned_locations.append(loc_retail1)
-        staff2.assigned_locations.append(loc_retail2)
+        staff1.assigned_locations.extend([loc_warehouse, loc_retail1, loc_north])
+        staff2.assigned_locations.extend([loc_retail2, loc_south, loc_west])
         db.flush()
         print("  [+] Assigned staff to locations")
 
