@@ -15,7 +15,7 @@ The development of InventoryOS was structured into 10 iterative, test-driven ses
 | **Session 7** | Bulk CSV Import & Export | CSV parser with line-by-line savepoint error collection, stock receipts bulk import, and multi-location stock position CSV export. |
 | **Session 8** | Low-Stock Alerts & Dismissal | Alert count endpoint, manager dismissal/undismissal endpoints, write-time auto re-triggering logic, and real-time navigation badge. |
 | **Session 9** | Dashboard & Analytics | Headline KPI metric cards (today's movements, distinct items moved this week), 14-day daily volume area charts, 8-week weekly volume bar charts, and category/location distributions. |
-| **Session 10** | Polish & Documentation | Edge-case bug auditing, N+1 query elimination, full end-to-end test suite validation (28 automated tests), and comprehensive system documentation. |
+| **Session 10** | Polish & Documentation | Edge-case bug auditing, N+1 query elimination, full end-to-end test suite validation (29 automated tests), and comprehensive system documentation. |
 
 ---
 
@@ -39,7 +39,7 @@ We followed an **outside-in, dependency-ordered approach**:
 | Bulk CSV Import & Row-level Savepoints | 1.5 hours | 2.0 hours | +0.5 hours; implementing nested savepoints (`db.begin_nested()`) so a single bad row doesn't roll back the whole batch required careful testing. |
 | Low-Stock Alerts with Write-Time Re-trigger | 1.5 hours | 1.5 hours | On track; write-time hooks integrated cleanly with the movement service. |
 | Analytics & 8-Week Trend Calculations | 1.5 hours | 1.5 hours | On track; standard SQL aggregation queries. |
-| Testing, Bug Hunting & Documentation | 2.0 hours | 2.5 hours | +0.5 hours; comprehensive automated test coverage across 28 test suites and complete technical writeups. |
+| Testing, Bug Hunting & Documentation | 2.0 hours | 2.5 hours | +0.5 hours; comprehensive automated test coverage across 29 test suites and complete technical writeups. |
 | **Total** | **14.0 hours** | **16.0 hours** | **+2.0 hours total investment for high-polish delivery.** |
 
 ---

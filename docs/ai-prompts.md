@@ -94,3 +94,20 @@ This document logs the significant prompts used during the development of Invent
 
 ### What was corrected
 - Verified that managers retain access to all locations without restriction, ensuring that management capabilities are not hindered by staff permission UI guards.
+
+---
+
+## 6. Staff Onboarding & Facility Assignments by Manager
+
+### Prompt
+> "According to the assignment, can we give permission to the manager to onboard new staff members and assign them to facilities? Implement server endpoints and an intuitive UI modal for managers to create warehouse staff accounts with immediate facility assignments, strictly restricted to role STAFF."
+
+### What was received
+- A new endpoint `POST /api/users` guarded by `require_manager` to create users with role `STAFF` and associate `location_ids`.
+- `StaffCreate` Pydantic schema with email uniqueness verification.
+- Frontend dialog `AddStaffDialog` on the `/users` page allowing managers to enter staff details and select facilities via multi-select checkboxes.
+
+### What was corrected
+- Explicitly prevented staff creation from accepting or elevating to `MANAGER` role, strictly enforcing that only warehouse staff can be onboarded through this path.
+- Added automated test `test_manager_create_staff_and_role_enforcement` verifying that managers can create staff accounts and unauthenticated or staff users are rejected with `401`/`403`.
+
