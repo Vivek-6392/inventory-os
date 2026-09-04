@@ -3,7 +3,8 @@
 ## Links
 
 - **GitHub repository:** https://github.com/Vivek-6392/inventory-os
-- **Live application:** http://localhost:5173 (Local development instance)
+- **Live application (Frontend UI):** https://inventory-os.vercel.app
+- **Live API Server (Backend):** https://inventory-api-u0wx.onrender.com (API Swagger Docs: https://inventory-api-u0wx.onrender.com/docs)
 
 ---
 
