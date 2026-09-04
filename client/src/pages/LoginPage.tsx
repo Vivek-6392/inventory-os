@@ -56,7 +56,11 @@ const LoginPage: React.FC = () => {
       await login(email, password);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Invalid email or password. Please try again.');
+      if (!err.response) {
+        setError('Cannot connect to API server. Please check your backend connection.');
+      } else {
+        setError(err.response?.data?.detail || 'Invalid email or password. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
