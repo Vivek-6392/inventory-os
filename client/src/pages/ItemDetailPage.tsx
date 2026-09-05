@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
-  Grid,
   Typography,
   Button,
   Chip,
@@ -220,84 +219,88 @@ export const ItemDetailPage: React.FC = () => {
       </Stack>
 
       {/* KPI Cards */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(4, 1fr)',
+          },
+          gap: 2.5,
+          mb: 3,
+        }}
+      >
         {/* Total On Hand */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Card
-            sx={{
-              p: 2.5,
-              borderRadius: 3,
-              border: isLowStock ? `1px solid ${theme.palette.warning.main}` : undefined,
-              backgroundColor: isLowStock ? alpha(theme.palette.warning.main, 0.05) : undefined,
-            }}
-          >
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-              <Box>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                  TOTAL ON HAND
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: isLowStock ? 'warning.main' : 'text.primary' }}>
-                  {item.on_hand ?? 0}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Unit: {item.unit_of_measure}
-                </Typography>
-              </Box>
-              <StockIcon sx={{ color: isLowStock ? 'warning.main' : 'primary.main', fontSize: 32 }} />
-            </Stack>
-          </Card>
-        </Grid>
+        <Card
+          sx={{
+            p: 2.5,
+            borderRadius: 3,
+            border: isLowStock ? `1px solid ${theme.palette.warning.main}` : undefined,
+            backgroundColor: isLowStock ? alpha(theme.palette.warning.main, 0.05) : undefined,
+            height: '100%',
+          }}
+        >
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+            <Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                TOTAL ON HAND
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5, color: isLowStock ? 'warning.main' : 'text.primary' }}>
+                {item.on_hand ?? 0}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Unit: {item.unit_of_measure}
+              </Typography>
+            </Box>
+            <StockIcon sx={{ color: isLowStock ? 'warning.main' : 'primary.main', fontSize: 32 }} />
+          </Stack>
+        </Card>
 
         {/* Reorder Level */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ p: 2.5, borderRadius: 3 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-              <Box>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                  REORDER LEVEL
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5 }}>
-                  {item.reorder_level}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Alert threshold
-                </Typography>
-              </Box>
-              <WarningIcon sx={{ color: 'text.secondary', fontSize: 32 }} />
-            </Stack>
-          </Card>
-        </Grid>
+        <Card sx={{ p: 2.5, borderRadius: 3, height: '100%' }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+            <Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                REORDER LEVEL
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mt: 0.5 }}>
+                {item.reorder_level}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Alert threshold
+              </Typography>
+            </Box>
+            <WarningIcon sx={{ color: 'text.secondary', fontSize: 32 }} />
+          </Stack>
+        </Card>
 
         {/* Category */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ p: 2.5, borderRadius: 3 }}>
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-              CATEGORY
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, mt: 0.5 }}>
-              {item.category?.name || 'Uncategorized'}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Product classification
-            </Typography>
-          </Card>
-        </Grid>
+        <Card sx={{ p: 2.5, borderRadius: 3, height: '100%' }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+            CATEGORY
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, mt: 0.5 }}>
+            {item.category?.name || 'Uncategorized'}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Product classification
+          </Typography>
+        </Card>
 
         {/* Unit of measure */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ p: 2.5, borderRadius: 3 }}>
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-              UNIT OF MEASURE
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, mt: 0.5 }}>
-              {item.unit_of_measure}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Stock counting unit
-            </Typography>
-          </Card>
-        </Grid>
-      </Grid>
+        <Card sx={{ p: 2.5, borderRadius: 3, height: '100%' }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+            UNIT OF MEASURE
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, mt: 0.5 }}>
+            {item.unit_of_measure}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Stock counting unit
+          </Typography>
+        </Card>
+      </Box>
 
       {/* Description if available */}
       {item.description && (
@@ -318,39 +321,88 @@ export const ItemDetailPage: React.FC = () => {
           Stock Breakdown by Location
         </Typography>
 
-        <Grid container spacing={2}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(4, 1fr)',
+            },
+            gap: 2,
+          }}
+        >
           {locations.map((loc) => {
             const locQty = item.stock_by_location?.[loc.id] ?? 0;
             return (
-              <Grid item xs={12} sm={6} md={4} key={loc.id}>
-                <Paper
-                  variant="outlined"
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    backgroundColor: alpha(theme.palette.background.default, 0.4),
-                  }}
-                >
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              <Paper
+                key={loc.id}
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  backgroundColor: alpha(theme.palette.background.default, 0.4),
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  height: '100%',
+                  boxSizing: 'border-box',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.08)}`,
+                  },
+                }}
+              >
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }} noWrap title={loc.name}>
                     {loc.name}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      lineHeight: 1.35,
+                      minHeight: '2.7em',
+                    }}
+                    title={loc.description || 'No location notes'}
+                  >
                     {loc.description || 'No location notes'}
                   </Typography>
+                </Box>
+                <Box>
                   <Divider sx={{ my: 1 }} />
                   <Stack direction="row" justifyContent="space-between" alignItems="baseline">
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
                       Quantity:
                     </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: locQty > 0 ? 'primary.light' : 'text.secondary' }}>
-                      {locQty} {item.unit_of_measure}
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 700,
+                        color: locQty > 0 ? 'primary.light' : 'text.secondary',
+                      }}
+                    >
+                      {locQty}{' '}
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        sx={{ fontWeight: 600, color: locQty > 0 ? 'primary.light' : 'text.secondary' }}
+                      >
+                        {item.unit_of_measure}
+                      </Typography>
                     </Typography>
                   </Stack>
-                </Paper>
-              </Grid>
+                </Box>
+              </Paper>
             );
           })}
-        </Grid>
+        </Box>
       </Card>
 
       {/* Detail Tabs: Movements & History */}

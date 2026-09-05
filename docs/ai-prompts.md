@@ -149,4 +149,31 @@ This document logs the significant prompts used during the development of Invent
 - Replaced MUI `Grid` with native CSS Grid (`display: 'grid'`, `gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' }` for Row 1, and `gridTemplateColumns: { xs: '1fr', lg: '2fr 3fr' }` for Row 2) spanning `width: '100%'`.
 - When stock is healthy and zero alerts exist, added a positive status banner accompanied by three clickable mini insight cards (Top Category, Top Location, Moved This Week) to maintain balanced card heights across both columns.
 
+---
+
+## 9. Item Detail Location Cards Uniform Grid (4 Per Row)
+
+### Prompt
+> "fix this make all cards of same size and in one row 4 cards" (with attached screenshot of Item Detail Page 'Stock Breakdown by Location' section)
+
+### What was received
+- Identified that in `ItemDetailPage.tsx`, the 'Stock Breakdown by Location' cards used `@mui/material/Grid` with `item xs={12} sm={6} md={4}`.
+- In MUI modern versions (`@mui/material` v9+), the Grid component behaves as Grid v2 where `item`, `xs`, and `md` props are superseded by `size={{ ... }}`. Consequently, the cards fell back to unconstrained flex items without fixed fractional widths, causing card widths to vary unevenly according to description text length (e.g. "Retail Floor A" was 140px wide while "Quarantine & Returns Depot" was 310px wide).
+
+### What was corrected
+- Replaced the flex/MUI Grid container with a native CSS Grid container:
+  ```tsx
+  display: 'grid',
+  gridTemplateColumns: {
+    xs: '1fr',
+    sm: 'repeat(2, 1fr)',
+    md: 'repeat(4, 1fr)',
+  },
+  gap: 2
+  ```
+- Styled each location card `Paper` with `height: '100%'`, `display: 'flex'`, `flexDirection: 'column'`, `justifyContent: 'space-between'`.
+- Enforced a uniform height for the text area (`minHeight: '2.7em'`, 2-line clamp with ellipsis) so that 1-line and 2-line location descriptions take up identical vertical space.
+- Result: Every card in the grid has the exact same width and height, cleanly organized in 4 cards per row across desktop displays.
+
+
 
