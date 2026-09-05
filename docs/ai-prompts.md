@@ -111,3 +111,42 @@ This document logs the significant prompts used during the development of Invent
 - Explicitly prevented staff creation from accepting or elevating to `MANAGER` role, strictly enforcing that only warehouse staff can be onboarded through this path.
 - Added automated test `test_manager_create_staff_and_role_enforcement` verifying that managers can create staff accounts and unauthenticated or staff users are rejected with `401`/`403`.
 
+---
+
+## 7. Facility Inspection Drawer UI & Authorized Personnel Rendering
+
+### Prompt
+> "Fix the Locations page facility inspection drawer UI. BUG: The drawer correctly shows: 'Authorized Personnel (2)' and the Edit Roster button, but the actual authorized personnel rows are not visible. The space below the heading appears empty/blank. Do not change backend/API/models. Make the smallest clean frontend/UI fix necessary."
+
+### What was received
+- Suggested inspecting `inspectLocation.assigned_staff` mappings and adding fallback text or debugging height properties.
+
+### What went wrong (Encountered CSS Flexbox Collapse Bug)
+- The drawer parent container was configured with `display: flex`, `flexDirection: column`, `height: 100%`, `overflowY: auto`.
+- The quick actions footer at the bottom of the drawer was assigned `mt: 'auto'`, while the personnel list container was given `maxHeight: 300px` without a rigid flex-basis or growth factor.
+- Under MUI's flexbox computation, `mt: 'auto'` pushed the footer down aggressively, collapsing the scrollable personnel list container down to `0px` rendered height. The elements were physically in the DOM, but completely squashed and invisible.
+- Additionally, the top KPI card "Total Staff Assigned: 8" counted non-unique assignments across multiple locations rather than distinct staff members.
+
+### What was corrected
+- Refactored the drawer layout in `LocationsPage.tsx` from flex-shrink layout to `display: 'block'` with natural vertical flow and consistent margins, ensuring personnel cards render reliably regardless of screen height.
+- Corrected total staff assigned calculation to compute `new Set(locations.flatMap(l => l.assigned_staff?.map(s => s.id) ?? [])).size` for unique personnel representation.
+
+---
+
+## 8. Full-Width Responsive Dashboard CSS Grid Redesign
+
+### Prompt
+> "Redesign the dashboard layout so the cards use the full available page width and eliminate the large empty space on the right. Make the container 100% of the available viewport width with consistent padding. Desktop layout: Row 1: 8-Week Movement Volume Trends (~60%) + Stock by Category (~40%). Row 2: Stock by Location (~40%) + Low Stock Watchlist (~60%). Both rows should span the entire width with a 16-24px gap."
+
+### What was received
+- A responsive layout using MUI `Grid` containers with `xs={12} md={7}` and `xs={12} md={5}`.
+
+### What went wrong (Grid Whitespace Gap Bug)
+- MUI Grid containers with 12-column integer spans (`7/12` = 58.33%, `5/12` = 41.67%) calculate fractional percentages that leave residual gutters on ultra-wide viewports (1440px+), producing visual whitespace imbalances on the right edge.
+- Furthermore, when the warehouse had zero items below reorder level, the Low Stock Watchlist appeared completely empty and unbalanced next to the Stock by Location chart.
+
+### What was corrected
+- Replaced MUI `Grid` with native CSS Grid (`display: 'grid'`, `gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' }` for Row 1, and `gridTemplateColumns: { xs: '1fr', lg: '2fr 3fr' }` for Row 2) spanning `width: '100%'`.
+- When stock is healthy and zero alerts exist, added a positive status banner accompanied by three clickable mini insight cards (Top Category, Top Location, Moved This Week) to maintain balanced card heights across both columns.
+
+

@@ -360,10 +360,17 @@ export const DashboardPage: React.FC = () => {
         </Card>
       </Box>
 
-      {/* Visual Analytics Row */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        {/* Movement Trends (8 Weeks or 14 Days) */}
-        <Grid item xs={12} lg={8}>
+      {/* Visual Analytics Row 1: Movement Trends (60%) + Category Breakdown (40%) */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' },
+          gap: '20px',
+          mb: 3,
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
           <Card sx={{ p: 3, borderRadius: 3, height: '100%' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
               <Box>
@@ -476,10 +483,9 @@ export const DashboardPage: React.FC = () => {
               </ResponsiveContainer>
             </Box>
           </Card>
-        </Grid>
 
         {/* Category Breakdown (Donut Chart) */}
-        <Grid item xs={12} lg={4}>
+        <Box>
           <Card sx={{ p: 3, borderRadius: 3, height: '100%' }}>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
               Stock by Category
@@ -517,13 +523,22 @@ export const DashboardPage: React.FC = () => {
               </ResponsiveContainer>
             </Box>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
-      {/* Row 2: Location Distribution & Critical Low Stock Watchlist */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      {/* Row 2: Location Distribution (40%) & Low Stock Watchlist (60%) */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: '2fr 3fr' },
+          gap: '20px',
+          mb: 3,
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
         {/* Stock by Location (Bar Chart) */}
-        <Grid item xs={12} md={5}>
+        <Box>
           <Card sx={{ p: 3, borderRadius: 3, height: '100%' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box>
@@ -557,10 +572,10 @@ export const DashboardPage: React.FC = () => {
               </ResponsiveContainer>
             </Box>
           </Card>
-        </Grid>
+        </Box>
 
         {/* Critical Low Stock Watchlist */}
-        <Grid item xs={12} md={7}>
+        <Box>
           <Card sx={{ p: 3, borderRadius: 3, height: '100%' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box>
@@ -647,8 +662,8 @@ export const DashboardPage: React.FC = () => {
               </TableContainer>
             )}
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Row 3: Recent Ledger Activity Feed */}
       <Card sx={{ p: 3, borderRadius: 3 }}>

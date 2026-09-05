@@ -35,7 +35,7 @@ Welcome to **InventoryOS**! The application comes pre-configured with a seed scr
    ```bash
    cd server
    pytest -v
-   # All 29 automated test suites will run and pass in ~19 seconds.
+   # All 30 automated test suites will run and pass in ~20 seconds.
    ```
 
 ---
@@ -74,7 +74,7 @@ Welcome to **InventoryOS**! The application comes pre-configured with a seed scr
 | **7** | Bulk CSV Import & Export | **Done** | Per-row savepoints (`db.begin_nested()`) reporting line-by-line errors for product catalog and bulk receipts. Real-time multi-location stock position CSV export. |
 | **8** | Low-Stock Alerts & Dismissal | **Done** | Real-time threshold evaluation, manager dismissal/undismissal, write-time auto re-triggering when stock rises above reorder level, live navigation badge. |
 | **9** | Dashboard & Analytics | **Done** | Headline KPI cards (movements today, distinct items moved this week), 14-day daily volume area chart, 8-week weekly volume bar chart, category and location stock distributions. |
-| **10** | Documentation & Quality Verification | **Done** | Complete docs (`architecture.md`, `schema.md`, `decisions.md`, `plan.md`, `ai-prompts.md`, `SUBMISSION.md`) and 29 passing automated tests. |
+| **10** | Documentation & Quality Verification | **Done** | Complete docs (`architecture.md`, `schema.md`, `decisions.md`, `plan.md`, `ai-prompts.md`, `SUBMISSION.md`) and 30 passing automated tests. |
 
 ---
 

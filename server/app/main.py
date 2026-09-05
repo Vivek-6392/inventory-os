@@ -7,10 +7,27 @@ from app.database import engine, Base
 from app.routers import auth, categories, items, movements, locations, users, history, csv_tools, dashboard, alerts
 
 
+from sqlalchemy import text
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Ensure all tables exist on startup
     Base.metadata.create_all(bind=engine)
+    # Ensure location extension columns exist in database
+    with engine.connect() as conn:
+        for col_ddl in [
+            "ALTER TABLE locations ADD COLUMN IF NOT EXISTS address VARCHAR(255);",
+            "ALTER TABLE locations ADD COLUMN IF NOT EXISTS type VARCHAR(100) DEFAULT 'Warehouse';",
+            "ALTER TABLE locations ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;",
+            "ALTER TABLE locations ADD COLUMN IF NOT EXISTS image_url TEXT;",
+            "ALTER TABLE locations ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;",
+            "ALTER TABLE locations ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;",
+        ]:
+            try:
+                conn.execute(text(col_ddl))
+                conn.commit()
+            except Exception:
+                pass
     yield
 
 

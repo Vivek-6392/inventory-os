@@ -4,6 +4,12 @@ import type { Location, User } from '../types';
 export interface LocationFormData {
   name: string;
   description?: string;
+  address?: string;
+  type?: string;
+  is_active?: boolean;
+  image_url?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export const getLocations = async (): Promise<Location[]> => {

@@ -132,3 +132,43 @@ def test_manager_create_staff_and_role_enforcement(client, manager_headers, staf
         headers=staff_headers,
     )
     assert staff_res.status_code == 403
+
+
+def test_create_location_with_extended_fields(client, manager_headers):
+    """Test creating and updating a location with location (address), type, active status, and image_url."""
+    res = client.post(
+        "/api/locations",
+        json={
+            "name": "South Tech Fulfillment Center",
+            "description": "High-throughput robotics hub",
+            "address": "Whitefield, Bengaluru, Karnataka",
+            "type": "Fulfillment Hub",
+            "is_active": True,
+            "image_url": "https://images.unsplash.com/photo-1553413077-190dd305871c",
+            "latitude": 12.9716,
+            "longitude": 77.5946,
+        },
+        headers=manager_headers,
+    )
+    assert res.status_code == 201
+    data = res.json()
+    assert data["name"] == "South Tech Fulfillment Center"
+    assert data["address"] == "Whitefield, Bengaluru, Karnataka"
+    assert data["type"] == "Fulfillment Hub"
+    assert data["is_active"] is True
+    assert data["image_url"] == "https://images.unsplash.com/photo-1553413077-190dd305871c"
+    loc_id = data["id"]
+
+    # Update to inactive
+    update_res = client.put(
+        f"/api/locations/{loc_id}",
+        json={
+            "is_active": False,
+            "type": "Warehouse",
+        },
+        headers=manager_headers,
+    )
+    assert update_res.status_code == 200
+    updated = update_res.json()
+    assert updated["is_active"] is False
+    assert updated["type"] == "Warehouse"

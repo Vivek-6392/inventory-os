@@ -23,6 +23,12 @@ export interface Category {
   created_at: string;
 }
 
+export interface StaffBrief {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface Location {
   id: string;
   name: string;
@@ -30,6 +36,14 @@ export interface Location {
   created_at: string;
   staff_count?: number;
   movement_count?: number;
+  total_stock?: number;
+  assigned_staff?: StaffBrief[];
+  address?: string | null;
+  type?: string | null;
+  is_active?: boolean;
+  image_url?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface Item {

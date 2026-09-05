@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -25,6 +26,7 @@ import { RecordMovementDialog } from '../components/RecordMovementDialog';
 
 export const MovementsPage: React.FC = () => {
   const theme = useTheme();
+  const [searchParams] = useSearchParams();
 
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [totalMovements, setTotalMovements] = useState(0);
@@ -35,10 +37,20 @@ export const MovementsPage: React.FC = () => {
 
   // Filters
   const [selectedItemId, setSelectedItemId] = useState<string>('');
-  const [selectedLocationId, setSelectedLocationId] = useState<string>('');
+  const [selectedLocationId, setSelectedLocationId] = useState<string>(
+    searchParams.get('location_id') || ''
+  );
   const [selectedKind, setSelectedKind] = useState<string>('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+
+  useEffect(() => {
+    const locId = searchParams.get('location_id');
+    if (locId) {
+      setSelectedLocationId(locId);
+      setPage(0);
+    }
+  }, [searchParams]);
 
   const [recordDialogOpen, setRecordDialogOpen] = useState(false);
 

@@ -48,6 +48,12 @@ Physical warehouse, depot, or retail storage locations.
 | `id` | `VARCHAR(36)` (UUID) | No | Primary Key |
 | `name` | `VARCHAR(100)` | No | Unique index |
 | `description` | `TEXT` | Yes | Optional location notes |
+| `address` | `VARCHAR(255)` | Yes | Street address or geographic location |
+| `type` | `VARCHAR(100)` | Yes | Facility kind (e.g., `Warehouse`, `Retail Floor`, `Fulfillment Hub`, `Depot`) |
+| `is_active` | `BOOLEAN` | Yes | Operational status flag, default `TRUE` |
+| `image_url` | `TEXT` | Yes | Facility photo / visual asset URL |
+| `latitude` | `FLOAT` | Yes | Geographic GPS latitude coordinate |
+| `longitude` | `FLOAT` | Yes | Geographic GPS longitude coordinate |
 | `created_at` | `TIMESTAMP WITH TZ` | No | Default `now()` (UTC) |
 
 ### 5. `staff_locations` (Join Table)
